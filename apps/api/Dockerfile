@@ -6,7 +6,7 @@
 # packages (database, engines, shared) as TypeScript source at runtime.
 FROM oven/bun:1.4.4
 
-# Prisma's migration engine (used by the pre-deploy `migrate deploy`) needs OpenSSL.
+# Prisma's migration engine (used by `migrate deploy` at startup) needs OpenSSL.
 RUN apt-get update \
   && apt-get install -y --no-install-recommends openssl ca-certificates \
   && rm -rf /var/lib/apt/lists/*
@@ -24,4 +24,8 @@ RUN bun install --frozen-lockfile \
 ENV NODE_ENV=production
 # Railway injects PORT; the server listens on 0.0.0.0:$PORT.
 EXPOSE 3001
-CMD ["bun", "apps/api/dist/index.js"]
+# Apply pending PostgreSQL migrations, then start the API. `migrate deploy` only
+# applies migrations missing from `_prisma_migrations` (never resets or drops),
+# so restarts are no-ops. If it fails, the API does not start. This runs here
+# rather than only as Railway's preDeployCommand, which the service ignored.
+CMD ["sh", "-c", "bun run db:migrate:deploy && exec bun apps/api/dist/index.js"]
