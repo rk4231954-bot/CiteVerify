@@ -1,4 +1,11 @@
-// CiteVerify database schema. Models are added in later steps.
+// CiteVerify database schema (SQLite).
+//
+// SQLite has no native enums, so status-like columns are TEXT. The allowed
+// values live in @citeverify/shared (constants + zod schemas); the comment on
+// each such column names the constant it must hold.
+//
+// Multi-value text fields (e.g. `authors`) are stored as a JSON-encoded
+// string array, e.g. '["Doe, J.","Roe, A."]'.
 
 generator client {
   provider = "prisma-client"
@@ -8,4 +15,181 @@ generator client {
 
 datasource db {
   provider = "sqlite"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  documents Document[]
+}
+
+model Document {
+  id               String   @id @default(cuid())
+  userId           String
+  title            String
+  originalFilename String
+  filePath         String
+  fileType         String // MIME type, e.g. "application/pdf"
+  fileSize         Int // bytes
+  status           String   @default("UPLOADED") // DocumentStatus
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  claims     ExtractedClaim[]
+  citations  Citation[]
+  references Reference[]
+  jobs       VerificationJob[]
+  reports    VerificationReport[]
+
+  @@index([userId])
+  @@index([status])
+}
+
+model ExtractedClaim {
+  id             String   @id @default(cuid())
+  documentId     String
+  originalText   String
+  normalizedText String?
+  pageNumber     Int?
+  section        String?
+  confidence     Float? // 0..1, extraction confidence
+  createdAt      DateTime @default(now())
+
+  document  Document             @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  citations Citation[] // a claim can be backed by several citations (and vice versa)
+  results   VerificationResult[]
+
+  @@index([documentId])
+}
+
+model Citation {
+  id           String   @id @default(cuid())
+  documentId   String
+  citationText String // in-text marker as written, e.g. "[2]" or "(Doe et al., 2021)"
+  citationType String // CitationType
+  pageNumber   Int?
+  referenceId  String? // null until resolved to a bibliography entry
+  createdAt    DateTime @default(now())
+
+  document  Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  reference Reference?       @relation(fields: [referenceId], references: [id], onDelete: SetNull)
+  claims    ExtractedClaim[]
+
+  @@index([documentId])
+  @@index([referenceId])
+}
+
+/// One entry in a document's bibliography.
+model Reference {
+  id            String   @id @default(cuid())
+  documentId    String
+  rawText       String
+  title         String?
+  authors       String? // JSON string array
+  year          Int?
+  doi           String?
+  publicationId String? // null until matched to a retrieved publication
+  createdAt     DateTime @default(now())
+
+  document     Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  publication  Publication? @relation(fields: [publicationId], references: [id], onDelete: SetNull)
+  citations    Citation[]
+
+  @@index([documentId])
+  @@index([publicationId])
+}
+
+/// A source publication, shared across documents that cite it.
+model Publication {
+  id              String   @id @default(cuid())
+  title           String
+  authors         String? // JSON string array
+  year            Int?
+  doi             String?  @unique
+  abstract        String?
+  sourceUrl       String?
+  publisher       String?
+  openAccess      Boolean  @default(false)
+  retrievalStatus String   @default("PENDING") // RetrievalStatus
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  references Reference[]
+  evidence   Evidence[]
+}
+
+/// A passage from a publication used to judge a claim.
+model Evidence {
+  id            String   @id @default(cuid())
+  publicationId String
+  sourceText    String
+  pageNumber    Int?
+  section       String?
+  evidenceType  String // EvidenceType
+  sourceUrl     String?
+  createdAt     DateTime @default(now())
+
+  publication Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([publicationId])
+}
+
+/// One run of the verification pipeline over a document.
+model VerificationJob {
+  id           String    @id @default(cuid())
+  documentId   String
+  status       String    @default("PENDING") // JobStatus
+  currentStage String? // JobStage
+  errorMessage String?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  document Document             @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  results  VerificationResult[]
+  report   VerificationReport?
+
+  @@index([documentId])
+  @@index([status])
+}
+
+/// The verdict for one claim in one verification run.
+model VerificationResult {
+  id                  String   @id @default(cuid())
+  claimId             String
+  verificationJobId   String
+  verdict             String // Verdict
+  explanation         String
+  confidence          Float // 0..1
+  evidenceSummary     String?
+  humanReviewRequired Boolean  @default(false)
+  createdAt           DateTime @default(now())
+
+  claim ExtractedClaim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  job   VerificationJob @relation(fields: [verificationJobId], references: [id], onDelete: Cascade)
+
+  @@unique([claimId, verificationJobId]) // one verdict per claim per run
+  @@index([verificationJobId])
+}
+
+/// Final report for one verification run of a document.
+model VerificationReport {
+  id                String   @id @default(cuid())
+  documentId        String
+  verificationJobId String   @unique // one report per run
+  summary           String
+  reportPath        String?
+  createdAt         DateTime @default(now())
+
+  document Document        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  job      VerificationJob @relation(fields: [verificationJobId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
 }

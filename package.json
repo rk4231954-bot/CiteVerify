@@ -13,7 +13,11 @@
     "typecheck": "turbo run typecheck",
     "format": "biome format --write .",
     "db:generate": "turbo run db:generate --filter=@citeverify/database",
+    "db:migrate": "bun run --cwd packages/database db:migrate",
+    "db:migrate:deploy": "bun run --cwd packages/database db:migrate:deploy",
+    "db:reset": "bun run --cwd packages/database db:reset",
     "db:push": "bun run --cwd packages/database db:push",
+    "db:seed": "bun run --cwd packages/database db:seed",
     "db:studio": "bun run --cwd packages/database db:studio"
   },
   "devDependencies": {

@@ -8,12 +8,17 @@
   },
   "scripts": {
     "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:reset": "prisma migrate reset",
     "db:push": "prisma db push",
+    "db:seed": "bun prisma/seed.ts",
     "db:studio": "prisma studio",
     "lint": "biome lint .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@citeverify/shared": "workspace:*",
     "@prisma/adapter-libsql": "7.10.1",
     "@prisma/client": "7.10.1"
   },

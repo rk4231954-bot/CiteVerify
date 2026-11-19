@@ -44,7 +44,8 @@ Internal packages export TypeScript source directly (`"exports": "./src/index.ts
 bun install
 cp .env.example .env
 bun run db:generate     # generate the Prisma client
-bun run db:push         # create/sync the SQLite database (once models exist)
+bun run db:migrate:deploy   # create the SQLite database from migrations
+bun run db:seed         # optional: load synthetic demo data
 bun run dev             # start web, api, and worker
 ```
 
@@ -53,19 +54,20 @@ bun run dev             # start web, api, and worker
 
 ## Commands (run from the repo root)
 
-| Command               | Description                      |
-| --------------------- | -------------------------------- |
-| `bun run dev`         | Run all apps in watch mode       |
-| `bun run build`       | Build all apps                   |
-| `bun run lint`        | Lint all workspaces with Biome   |
-| `bun run typecheck`   | Type-check all workspaces        |
-| `bun run format`      | Format the repo with Biome       |
-| `bun run db:generate` | Generate the Prisma client       |
-| `bun run db:push`     | Push the Prisma schema to SQLite |
-| `bun run db:studio`   | Open Prisma Studio               |
+| Command               | Description                    |
+| --------------------- | ------------------------------ |
+| `bun run dev`         | Run all apps in watch mode     |
+| `bun run build`       | Build all apps                 |
+| `bun run lint`        | Lint all workspaces with Biome |
+| `bun run typecheck`   | Type-check all workspaces      |
+| `bun run format`      | Format the repo with Biome     |
+| `bun run db:generate` | Generate the Prisma client     |
+| `bun run db:migrate`  | Create + apply a migration     |
+| `bun run db:seed`     | Load synthetic demo data       |
+| `bun run db:studio`   | Open Prisma Studio             |
 
 To run a single app: `bunx turbo run dev --filter=@citeverify/api`
 
 ## Environment
 
-See `.env.example`. A relative SQLite `DATABASE_URL` (e.g. `file:./dev.db`) always resolves inside `packages/database/`, whichever app is running.
+See `.env.example`. A relative SQLite `DATABASE_URL` (e.g. `file:./dev.db`) always resolves inside `packages/database/`, whichever app is running. Database details: [`packages/database/README.md`](packages/database/README.md).

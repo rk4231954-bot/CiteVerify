@@ -10,7 +10,9 @@
     "lint": "biome lint .",
     "typecheck": "tsc --noEmit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
   "devDependencies": {
     "@citeverify/config": "workspace:*",
     "@types/bun": "^1.4.4"
