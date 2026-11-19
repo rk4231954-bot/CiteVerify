@@ -7,7 +7,7 @@
  * as links take their element from the caller (use `listItemClass()` on a
  * router <Link>), so this package stays free of a router dependency.
  */
-import type { HTMLAttributes, ReactNode } from "react";
+import { type HTMLAttributes, type ReactNode, useState } from "react";
 import { cn } from "../lib/cn.ts";
 import { Icon, type IconName } from "./icon.tsx";
 
@@ -256,7 +256,7 @@ export function MeterRow({
       >
         <div
           className={cn(
-            "h-full rounded-full bg-[linear-gradient(180deg,rgb(255_255_255/0.28),rgb(255_255_255/0))] transition-[width] duration-500 ease-out",
+            "h-full origin-left animate-grow-x rounded-full bg-[linear-gradient(180deg,rgb(255_255_255/0.28),rgb(255_255_255/0))] transition-[width] duration-500 ease-out",
             METER_FILL[tone],
           )}
           style={{ width: `${pct}%`, minWidth: pct > 0 ? 6 : 0 }}
@@ -391,41 +391,67 @@ export function StatusChip({
   );
 }
 
-/** Dense bar strip (the "Last 40 requests" graphic). Purely visual: give it a label. */
+/**
+ * Dense bar strip (the "Last 40 requests" graphic). Bars grow in on mount;
+ * with `titles`, hovering a bar shows its label in the readout line below.
+ */
 export function MiniBars({
   values,
   label,
   className,
   highlightLast = 0,
+  titles,
 }: {
   values: number[];
   label: string;
   className?: string;
   /** Number of trailing bars drawn brighter (e.g. today). */
   highlightLast?: number;
+  /** Per-bar description shown on hover (e.g. "Nov 12 · 2 uploads"). */
+  titles?: string[];
 }) {
   const max = Math.max(1, ...values);
+  const [hover, setHover] = useState<number | null>(null);
   return (
-    <div
-      role="img"
-      aria-label={label}
-      className={cn("flex h-7 items-end gap-[3px]", className)}
-    >
-      {values.map((v, i) => (
-        <span
-          // biome-ignore lint/suspicious/noArrayIndexKey: positional bars.
-          key={i}
-          className={cn(
-            "flex-1 rounded-[1.5px]",
-            i >= values.length - highlightLast
-              ? "bg-ink-soft"
-              : v > 0
-                ? "bg-white/[0.22]"
-                : "bg-white/[0.07]",
-          )}
-          style={{ height: `${Math.max(14, (v / max) * 100)}%` }}
-        />
-      ))}
+    <div className={className}>
+      <div
+        role="img"
+        aria-label={label}
+        className="flex h-7 items-end gap-[3px]"
+        onMouseLeave={() => setHover(null)}
+      >
+        {values.map((v, i) => (
+          // biome-ignore lint/a11y/noStaticElementInteractions: hover readout is decorative; the strip has an aria-label.
+          <span
+            // biome-ignore lint/suspicious/noArrayIndexKey: positional bars.
+            key={i}
+            onMouseEnter={() => setHover(i)}
+            className={cn(
+              "flex-1 origin-bottom animate-grow-y rounded-[1.5px] transition-[background-color,filter] duration-150",
+              hover === i
+                ? "bg-[#8aa9ff]"
+                : i >= values.length - highlightLast
+                  ? "bg-ink-soft"
+                  : v > 0
+                    ? "bg-white/[0.22]"
+                    : "bg-white/[0.07]",
+            )}
+            style={{
+              height: `${Math.max(14, (v / max) * 100)}%`,
+              animationDelay: `${i * 22}ms`,
+            }}
+          />
+        ))}
+      </div>
+      {titles ? (
+        <div
+          className="mt-1.5 h-4 truncate text-[11.5px] text-muted transition-opacity duration-150"
+          style={{ opacity: hover === null ? 0 : 1 }}
+          aria-hidden="true"
+        >
+          {hover === null ? "\u00a0" : titles[hover]}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -453,6 +479,8 @@ export function TimelineItem({
   date,
   tone = "neutral",
   last = false,
+  pulse = false,
+  index = 0,
   children,
 }: {
   title: ReactNode;
@@ -460,16 +488,32 @@ export function TimelineItem({
   date?: ReactNode;
   tone?: TileTone;
   last?: boolean;
+  /** Pulse the dot (marks the newest entry). */
+  pulse?: boolean;
+  /** Position, for a staggered entrance. */
+  index?: number;
   children?: ReactNode;
 }) {
   return (
-    <li className="relative pl-6">
+    <li
+      className="relative animate-fade-up pl-6"
+      style={{ animationDelay: `${index * 70}ms` }}
+    >
       {last ? null : (
         <span
           className="absolute top-4 bottom-[-18px] left-[4.5px] w-px bg-white/[0.1]"
           aria-hidden="true"
         />
       )}
+      {pulse ? (
+        <span
+          className={cn(
+            "absolute top-[5px] left-0 h-2.5 w-2.5 animate-ping-soft rounded-full",
+            DOT[tone],
+          )}
+          aria-hidden="true"
+        />
+      ) : null}
       <span
         className={cn(
           "absolute top-[5px] left-0 h-2.5 w-2.5 rounded-full",

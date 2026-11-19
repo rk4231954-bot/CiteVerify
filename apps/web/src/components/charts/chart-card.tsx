@@ -15,6 +15,7 @@ export function ChartCard({
   footer,
   className,
   empty,
+  actions,
 }: {
   title: string;
   description?: ReactNode;
@@ -24,6 +25,8 @@ export function ChartCard({
   className?: string;
   /** Rendered instead of chart/table when there is no data. */
   empty?: ReactNode;
+  /** Extra header controls, shown before the Chart/Table switch. */
+  actions?: ReactNode;
 }) {
   const [view, setView] = useState<"chart" | "table">("chart");
   return (
@@ -33,15 +36,18 @@ export function ChartCard({
         description={description}
         actions={
           empty ? null : (
-            <Segmented
-              label={`${title} view`}
-              value={view}
-              onChange={setView}
-              items={[
-                { key: "chart", label: "Chart" },
-                { key: "table", label: "Table" },
-              ]}
-            />
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              {actions}
+              <Segmented
+                label={`${title} view`}
+                value={view}
+                onChange={setView}
+                items={[
+                  { key: "chart", label: "Chart" },
+                  { key: "table", label: "Table" },
+                ]}
+              />
+            </div>
           )
         }
       />

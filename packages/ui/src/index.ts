@@ -41,6 +41,13 @@ export {
 } from "./components/feedback.tsx";
 export { Field, Input, Select, Textarea } from "./components/form.tsx";
 export { Icon, type IconName, LogoMark } from "./components/icon.tsx";
+export {
+  CountUp,
+  LiveDot,
+  Reveal,
+  trackSpotlight,
+  usePrefersReducedMotion,
+} from "./components/motion.tsx";
 export { Pagination } from "./components/pagination.tsx";
 export { Spinner } from "./components/spinner.tsx";
 export { Segmented, type TabItem, TabPanel, Tabs } from "./components/tabs.tsx";

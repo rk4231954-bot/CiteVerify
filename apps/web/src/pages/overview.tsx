@@ -6,6 +6,8 @@ import {
   Card,
   CardBody,
   CardHeader,
+  CountUp,
+  cn,
   EmptyState,
   HeroStat,
   Icon,
@@ -13,11 +15,14 @@ import {
   InlineNotice,
   InsetBox,
   ListItemContent,
+  LiveDot,
   listItemClass,
   MetaLine,
   MeterRow,
   MiniBars,
   Panel,
+  Reveal,
+  Segmented,
   Skeleton,
   StatList,
   StatRow,
@@ -25,7 +30,7 @@ import {
   Timeline,
   TimelineItem,
 } from "@citeverify/ui";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { ChartCard } from "../components/charts/chart-card.tsx";
 import {
@@ -67,6 +72,7 @@ export function OverviewPage() {
   const ws = useWorkspace({ refetchInterval: 30_000 });
   const navigate = useNavigate();
   const data = ws.data;
+  const [range, setRange] = useState<RangeKey>("14");
 
   const derived = useMemo(() => {
     if (!data) return null;
@@ -77,9 +83,36 @@ export function OverviewPage() {
       verdicts: verdictDistribution(results),
       confidence: confidenceDistribution(results),
       evidence: evidenceAvailability(results),
-      activity: activitySeries(data, 14),
+      activity: activitySeries(data, Number(range)),
+      recent: activitySeries(data, 14),
     };
-  }, [data]);
+  }, [data, range]);
+
+  // Single-key shortcuts: U opens Upload, R refreshes the figures.
+  const { refetch } = ws;
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey || e.defaultPrevented) return;
+      const t = e.target as HTMLElement | null;
+      if (
+        t &&
+        (t.isContentEditable ||
+          /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName) ||
+          t.closest("[role=dialog]"))
+      )
+        return;
+      const k = e.key.toLowerCase();
+      if (k === "u") {
+        e.preventDefault();
+        navigate("/upload");
+      } else if (k === "r") {
+        e.preventDefault();
+        void refetch();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [navigate, refetch]);
 
   const firstName = user?.name.split(/\s+/)[0] ?? "";
   const stats = derived?.stats;
@@ -110,7 +143,11 @@ export function OverviewPage() {
             title={
               stats ? (
                 <>
-                  {verifiedShare}% verified{" "}
+                  <CountUp
+                    value={verifiedShare}
+                    format={(n) => `${Math.round(n)}%`}
+                  />{" "}
+                  verified{" "}
                   <span className="ml-2 hidden font-normal text-[15px] text-muted sm:inline">
                     {greeting()}
                     {firstName ? `, ${firstName}` : ""}
@@ -122,16 +159,23 @@ export function OverviewPage() {
             }
             subtitle={
               stats ? (
-                <MetaLine
-                  items={[
-                    "Workspace",
-                    plural(stats.documents, "document"),
-                    `${stats.verifiedDocuments} verified`,
-                    stats.needsReview > 0
-                      ? `${stats.needsReview} claims need review`
-                      : null,
-                  ]}
-                />
+                <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
+                  <LiveStatus
+                    updatedAt={ws.updatedAt}
+                    fetching={ws.isFetching}
+                    onRefresh={() => void refetch()}
+                  />
+                  <MetaLine
+                    items={[
+                      "Workspace",
+                      plural(stats.documents, "document"),
+                      `${stats.verifiedDocuments} verified`,
+                      stats.needsReview > 0
+                        ? `${stats.needsReview} claims need review`
+                        : null,
+                    ]}
+                  />
+                </span>
               ) : (
                 "Loading your workspace…"
               )
@@ -148,9 +192,19 @@ export function OverviewPage() {
                 >
                   My documents <Icon name="chevronRight" size={14} />
                 </Link>
-                <Link to="/upload" className={buttonClass("primary")}>
+                <Link
+                  to="/upload"
+                  className={buttonClass("primary")}
+                  aria-keyshortcuts="U"
+                >
                   <Icon name="upload" size={15} />
                   Upload
+                  <span
+                    className="ml-0.5 hidden h-[18px] min-w-[18px] items-center justify-center rounded-[4px] bg-black/[0.08] px-1 font-mono text-[10.5px] text-black/50 sm:inline-flex"
+                    aria-hidden="true"
+                  >
+                    U
+                  </span>
                 </Link>
               </>
             }
@@ -175,7 +229,15 @@ export function OverviewPage() {
           ) : (
             <ChartCard
               title="Research activity"
-              description="Last 14 days · documents uploaded and claims verified"
+              description={`Last ${range} days · documents uploaded and claims verified`}
+              actions={
+                <Segmented
+                  label="Time range"
+                  value={range}
+                  onChange={setRange}
+                  items={RANGES}
+                />
+              }
               table={{
                 columns: ["Day", "Uploaded", "Verified"],
                 rows: (derived?.activity ?? []).map((d) => [
@@ -202,14 +264,20 @@ export function OverviewPage() {
             aria-label="Workspace summary"
             className="grid grid-cols-1 gap-4 md:grid-cols-3"
           >
-            <PipelineCard data={data} />
-            <VerdictsCard derived={derived} />
-            <ReviewCard needsReview={stats?.needsReview} loading={!stats} />
+            <Reveal index={1}>
+              <PipelineCard data={data} />
+            </Reveal>
+            <Reveal index={2}>
+              <VerdictsCard derived={derived} />
+            </Reveal>
+            <Reveal index={3}>
+              <ReviewCard needsReview={stats?.needsReview} loading={!stats} />
+            </Reveal>
           </section>
         </div>
 
         <aside className="min-w-0 space-y-7" aria-label="Recent activity">
-          <RecentDocuments data={data} activity={derived?.activity} />
+          <RecentDocuments data={data} activity={derived?.recent} />
           <div className="border-line border-t" />
           <RecentVerification data={data} />
         </aside>
@@ -220,48 +288,69 @@ export function OverviewPage() {
         aria-label="Key figures"
         className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5"
       >
-        <StatTile
-          label="Total documents"
-          icon="documents"
-          value={stats?.documents ?? 0}
-          loading={!stats}
-          hint={stats ? `${stats.verifiedDocuments} verified` : undefined}
-        />
-        <StatTile
-          label="Claims identified"
-          icon="claims"
-          accent="navy"
-          value={stats?.claims ?? 0}
-          loading={!stats}
-        />
-        <StatTile
-          label="Citations mapped"
-          icon="quote"
-          accent="violet"
-          value={stats?.citations ?? 0}
-          loading={!stats}
-          hint={stats ? `${stats.references} references` : undefined}
-        />
-        <StatTile
-          label="Claims verified"
-          icon="verification"
-          accent="success"
-          value={stats?.claimsVerified ?? 0}
-          loading={!stats}
-          hint={
-            stats?.averageConfidence != null
-              ? `Mean confidence ${stats.averageConfidence}/100`
-              : undefined
-          }
-        />
-        <StatTile
-          label="Needing human review"
-          icon="user"
-          accent="warning"
-          value={stats?.needsReview ?? 0}
-          loading={!stats}
-          hint="Recommended by the verifier"
-        />
+        {(
+          [
+            {
+              to: "/documents",
+              label: "Total documents",
+              icon: "documents",
+              accent: "primary",
+              value: stats?.documents,
+              hint: stats ? `${stats.verifiedDocuments} verified` : undefined,
+            },
+            {
+              to: "/claims",
+              label: "Claims identified",
+              icon: "claims",
+              accent: "navy",
+              value: stats?.claims,
+            },
+            {
+              to: "/claims?tab=citations",
+              label: "Citations mapped",
+              icon: "quote",
+              accent: "violet",
+              value: stats?.citations,
+              hint: stats ? `${stats.references} references` : undefined,
+            },
+            {
+              to: "/verification",
+              label: "Claims verified",
+              icon: "verification",
+              accent: "success",
+              value: stats?.claimsVerified,
+              hint:
+                stats?.averageConfidence != null
+                  ? `Mean confidence ${stats.averageConfidence}/100`
+                  : undefined,
+            },
+            {
+              to: "/verification?review=1",
+              label: "Needing human review",
+              icon: "user",
+              accent: "warning",
+              value: stats?.needsReview,
+              hint: "Recommended by the verifier",
+            },
+          ] as const
+        ).map((t, i) => (
+          <Reveal key={t.label} index={i}>
+            <Link
+              to={t.to}
+              className="block h-full rounded-[10px]"
+              aria-label={`${t.label}: ${t.value ?? "loading"}. Open`}
+            >
+              <StatTile
+                label={t.label}
+                icon={t.icon}
+                accent={t.accent}
+                value={t.value ?? 0}
+                loading={!stats}
+                hint={"hint" in t ? t.hint : undefined}
+              />
+            </Link>
+          </Reveal>
+        ))}
       </section>
 
       {data && data.total > 0 ? (
@@ -386,6 +475,70 @@ export function OverviewPage() {
   );
 }
 
+// ─── Live status & range ───────────────────────────────────────────────────
+
+type RangeKey = "7" | "14" | "30";
+const RANGES: Array<{ key: RangeKey; label: string }> = [
+  { key: "7", label: "7d" },
+  { key: "14", label: "14d" },
+  { key: "30", label: "30d" },
+];
+
+const QUEUE_PREVIEW = 5;
+const QUEUE_MAX = 15;
+
+function ago(ms: number): string {
+  const s = Math.max(0, Math.round(ms / 1000));
+  if (s < 5) return "just now";
+  if (s < 60) return `${s}s ago`;
+  const m = Math.round(s / 60);
+  return m < 60 ? `${m}m ago` : `${Math.round(m / 60)}h ago`;
+}
+
+/** "● Live · updated 12s ago ⟳" — figures refresh every 30 s, or on demand. */
+function LiveStatus({
+  updatedAt,
+  fetching,
+  onRefresh,
+}: {
+  updatedAt: number;
+  fetching: boolean;
+  onRefresh: () => void;
+}) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 5000);
+    return () => clearInterval(id);
+  }, []);
+  return (
+    <span className="inline-flex items-center gap-1.5 text-[12px] text-muted">
+      <LiveDot active={!fetching} />
+      <span aria-live="polite">
+        {fetching
+          ? "Refreshing…"
+          : updatedAt
+            ? `Live · updated ${ago(now - updatedAt)}`
+            : "Live"}
+      </span>
+      <button
+        type="button"
+        onClick={onRefresh}
+        disabled={fetching}
+        aria-keyshortcuts="R"
+        title="Refresh (R)"
+        className="ml-0.5 flex h-6 w-6 items-center justify-center rounded-[6px] text-subtle transition-colors hover:bg-white/[0.06] hover:text-ink disabled:opacity-60"
+      >
+        <Icon
+          name="refresh"
+          size={13}
+          className={cn(fetching && "animate-spin")}
+        />
+        <span className="sr-only">Refresh figures</span>
+      </button>
+    </span>
+  );
+}
+
 // ─── Summary cards ─────────────────────────────────────────────────────────
 
 const CHECKPOINTS = [
@@ -419,7 +572,7 @@ function PipelineCard({ data }: { data: Workspace | undefined }) {
     count: docs.filter((d) => checkpoints(d)[c.key]).length,
   }));
   return (
-    <Link to="/documents" className="group block">
+    <Link to="/documents" className="group block h-full">
       <Card interactive className="flex h-full flex-col">
         <CardHeader
           title="Pipeline"
@@ -462,7 +615,7 @@ function VerdictsCard({
     .sort((a, b) => b.count - a.count)
     .slice(0, 3);
   return (
-    <Link to="/verification" className="group block">
+    <Link to="/verification" className="group block h-full">
       <Card interactive className="flex h-full flex-col">
         <CardHeader
           title="Verdicts"
@@ -491,14 +644,25 @@ function VerdictsCard({
                         />
                       }
                       label={VERDICTS[v.verdict].label}
-                      value={`${percent(v.count, total)}%`}
+                      value={
+                        <CountUp
+                          value={percent(v.count, total)}
+                          format={(n) => `${Math.round(n)}%`}
+                        />
+                      }
                     />
                   ))
                 )}
               </StatList>
               <StatList className="mt-auto border-white/[0.06] border-t pt-1">
-                <StatRow label="Claims" value={derived.stats.claims} />
-                <StatRow label="Citations" value={derived.stats.citations} />
+                <StatRow
+                  label="Claims"
+                  value={<CountUp value={derived.stats.claims} />}
+                />
+                <StatRow
+                  label="Citations"
+                  value={<CountUp value={derived.stats.citations} />}
+                />
               </StatList>
             </>
           )}
@@ -517,7 +681,7 @@ function ReviewCard({
   loading: boolean;
 }) {
   return (
-    <Link to="/verification?review=1" className="group block">
+    <Link to="/verification?review=1" className="group block h-full">
       <Card interactive className="flex h-full flex-col">
         <CardHeader
           title="Human review"
@@ -531,7 +695,10 @@ function ReviewCard({
             <Skeleton className="h-16 w-full" />
           ) : (
             <>
-              <BigNumber label="Claims waiting" value={needsReview ?? 0} />
+              <BigNumber
+                label="Claims waiting"
+                value={<CountUp value={needsReview ?? 0} />}
+              />
               <InlineNotice
                 action={
                   <span className="text-ink underline decoration-white/30 underline-offset-2">
@@ -557,7 +724,9 @@ function RecentDocuments({
   activity,
 }: {
   data: Workspace | undefined;
-  activity: Array<{ uploads: number; verified: number }> | undefined;
+  activity:
+    | Array<{ label: string; uploads: number; verified: number }>
+    | undefined;
 }) {
   const docs = (data?.docs ?? [])
     .slice()
@@ -577,6 +746,10 @@ function RecentDocuments({
         <MiniBars
           className="mb-4"
           values={activity.map((d) => d.uploads + d.verified)}
+          titles={activity.map(
+            (d) =>
+              `${d.label} · ${plural(d.uploads, "upload")}, ${d.verified} verified`,
+          )}
           highlightLast={1}
           label="Uploads and verifications per day, last 14 days"
         />
@@ -591,8 +764,8 @@ function RecentDocuments({
         <p className="text-[12.5px] text-muted">No documents yet.</p>
       ) : (
         <ul className="space-y-1">
-          {docs.map(({ document: d, verification }) => (
-            <li key={d.id}>
+          {docs.map(({ document: d, verification }, i) => (
+            <Reveal as="li" key={d.id} index={i} step={45}>
               <Link
                 to={`/documents/${d.id}`}
                 className="group -mx-1.5 flex items-center gap-2.5 rounded-[6px] px-1.5 py-1.5 transition-colors hover:bg-white/[0.04]"
@@ -608,11 +781,16 @@ function RecentDocuments({
                     · {plural(d.counts.claims, "claim")}
                   </span>
                 </span>
-                <span className="tabular shrink-0 text-[12px] text-muted">
+                <span className="tabular shrink-0 text-[12px] text-muted transition-transform duration-200 group-hover:-translate-x-1">
                   {formatDate(d.createdAt)}
                 </span>
+                <Icon
+                  name="chevronRight"
+                  size={13}
+                  className="-ml-2 w-0 shrink-0 text-subtle opacity-0 transition-all duration-200 group-hover:ml-0 group-hover:w-[13px] group-hover:opacity-100"
+                />
               </Link>
-            </li>
+            </Reveal>
           ))}
         </ul>
       )}
@@ -655,6 +833,8 @@ function RecentVerification({ data }: { data: Workspace | undefined }) {
             return (
               <TimelineItem
                 key={doc.id}
+                index={i}
+                pulse={i === 0}
                 last={i === runs.length - 1}
                 tone={review > 0 ? "danger" : "success"}
                 title={
@@ -688,6 +868,7 @@ function RecentVerification({ data }: { data: Workspace | undefined }) {
 
 /** Claims flagged for a person, as policy-style rows. */
 function ReviewQueue({ data }: { data: Workspace | undefined }) {
+  const [expanded, setExpanded] = useState(false);
   const queue = data
     ? allResults(data)
         .filter((r) => r.humanReview.recommended)
@@ -725,44 +906,83 @@ function ReviewQueue({ data }: { data: Workspace | undefined }) {
           />
         </InsetBox>
       ) : (
-        <ul className="space-y-2">
-          {queue.slice(0, 5).map((r) => (
-            <li key={r.id}>
-              <Link
-                to={`/documents/${r.document.id}/workspace?claim=${r.claimId}`}
-                className={listItemClass()}
-              >
-                <ListItemContent
-                  leading={
-                    <IconTile
-                      icon={VERDICTS[r.verdict].icon}
-                      tone={
-                        r.verdict === "CONTRADICTED"
-                          ? "danger"
-                          : r.verdict === "SUPPORTED"
-                            ? "success"
-                            : "warning"
+        <>
+          <ul className="space-y-2">
+            {queue
+              .slice(0, expanded ? QUEUE_MAX : QUEUE_PREVIEW)
+              .map((r, i) => (
+                <Reveal
+                  as="li"
+                  key={r.id}
+                  index={i >= QUEUE_PREVIEW ? i - QUEUE_PREVIEW : i}
+                  step={40}
+                >
+                  <Link
+                    to={`/documents/${r.document.id}/workspace?claim=${r.claimId}`}
+                    className={listItemClass()}
+                  >
+                    <ListItemContent
+                      leading={
+                        <IconTile
+                          icon={VERDICTS[r.verdict].icon}
+                          tone={
+                            r.verdict === "CONTRADICTED"
+                              ? "danger"
+                              : r.verdict === "SUPPORTED"
+                                ? "success"
+                                : "warning"
+                          }
+                        />
                       }
+                      title={truncate(r.claim.originalText, 160)}
+                      subtitle={
+                        <MetaLine
+                          items={[r.document.title, r.humanReview.reasons[0]]}
+                        />
+                      }
+                      trailing={
+                        <span className="hidden items-center gap-3 md:flex">
+                          <VerdictBadge verdict={r.verdict} size="sm" />
+                          <ConfidenceMeter value={r.confidence} />
+                        </span>
+                      }
+                      menu
                     />
-                  }
-                  title={truncate(r.claim.originalText, 160)}
-                  subtitle={
-                    <MetaLine
-                      items={[r.document.title, r.humanReview.reasons[0]]}
-                    />
-                  }
-                  trailing={
-                    <span className="hidden items-center gap-3 md:flex">
-                      <VerdictBadge verdict={r.verdict} size="sm" />
-                      <ConfidenceMeter value={r.confidence} />
-                    </span>
-                  }
-                  menu
+                  </Link>
+                </Reveal>
+              ))}
+          </ul>
+          {queue.length > QUEUE_PREVIEW ? (
+            <div className="mt-3 flex items-center justify-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setExpanded((x) => !x)}
+                aria-expanded={expanded}
+              >
+                <Icon
+                  name="chevronDown"
+                  size={14}
+                  className={cn(
+                    "transition-transform duration-300",
+                    expanded && "rotate-180",
+                  )}
                 />
-              </Link>
-            </li>
-          ))}
-        </ul>
+                {expanded
+                  ? "Show fewer"
+                  : `Show ${Math.min(queue.length, QUEUE_MAX) - QUEUE_PREVIEW} more`}
+              </Button>
+              {expanded && queue.length > QUEUE_MAX ? (
+                <Link
+                  to="/verification?review=1"
+                  className="text-[12.5px] text-muted hover:text-ink"
+                >
+                  {queue.length - QUEUE_MAX} more in Verification
+                </Link>
+              ) : null}
+            </div>
+          ) : null}
+        </>
       )}
     </Panel>
   );

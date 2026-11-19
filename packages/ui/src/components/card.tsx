@@ -1,24 +1,35 @@
 import type { HTMLAttributes, ReactNode } from "react";
 import { cn } from "../lib/cn.ts";
 import { Icon } from "./icon.tsx";
+import { trackSpotlight } from "./motion.tsx";
 
 /** Glossy surface: the base container for every panel in the dashboard. */
 export function Card({
   className,
   interactive = false,
+  onMouseMove,
   ...props
 }: HTMLAttributes<HTMLDivElement> & {
   /** Lift on hover (for cards that act as links). */
   interactive?: boolean;
 }) {
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: mousemove only positions a decorative glow.
     <div
       className={cn(
         "gloss rounded-[10px] border border-line bg-surface shadow-card",
         interactive &&
-          "transition-[border-color,box-shadow] duration-200 hover:border-line-strong hover:shadow-raised",
+          "spotlight transition-[border-color,box-shadow,transform] duration-200 ease-out hover:-translate-y-0.5 hover:border-line-strong hover:shadow-raised motion-reduce:hover:translate-y-0",
         className,
       )}
+      onMouseMove={
+        interactive
+          ? (e) => {
+              trackSpotlight(e);
+              onMouseMove?.(e);
+            }
+          : onMouseMove
+      }
       {...props}
     />
   );

@@ -3,6 +3,7 @@ import {
   Button,
   Callout,
   Card,
+  CountUp,
   cn,
   EmptyState,
   Icon,
@@ -80,7 +81,7 @@ export function StatTile({
     } as const
   )[accent];
   return (
-    <Card interactive className="relative overflow-hidden p-4">
+    <Card interactive className="relative h-full overflow-hidden p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-[12.5px] text-muted">{label}</div>
@@ -88,7 +89,7 @@ export function StatTile({
             <Skeleton className="mt-2 h-7 w-16" />
           ) : (
             <div className="tabular mt-1.5 font-semibold text-[26px] text-ink leading-none tracking-[-0.02em]">
-              {value}
+              {typeof value === "number" ? <CountUp value={value} /> : value}
             </div>
           )}
         </div>

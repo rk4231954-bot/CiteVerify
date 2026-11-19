@@ -1,4 +1,11 @@
-import { type KeyboardEvent, type ReactNode, useId, useRef } from "react";
+import {
+  type KeyboardEvent,
+  type ReactNode,
+  useId,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { cn } from "../lib/cn.ts";
 
 export interface TabItem<K extends string> {
@@ -127,24 +134,50 @@ export function Segmented<K extends string>({
   label: string;
   className?: string;
 }) {
+  // The active pill is one element that slides between options.
+  const refs = useRef(new Map<K, HTMLButtonElement>());
+  const [pill, setPill] = useState<{ left: number; width: number } | null>(
+    null,
+  );
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-measure when options change.
+  useLayoutEffect(() => {
+    const el = refs.current.get(value);
+    if (el) setPill({ left: el.offsetLeft, width: el.offsetWidth });
+  }, [value, items.length]);
+
   return (
     <fieldset
       aria-label={label}
       className={cn(
-        "inline-flex rounded-[8px] border border-line bg-[#121214] p-0.5 shadow-[inset_0_1px_2px_rgb(0_0_0/0.35)]",
+        "relative inline-flex rounded-[8px] border border-line bg-[#121214] p-0.5 shadow-[inset_0_1px_2px_rgb(0_0_0/0.35)]",
         className,
       )}
     >
+      {pill ? (
+        <span
+          aria-hidden="true"
+          className="absolute top-0.5 bottom-0.5 rounded-[6px] bg-[linear-gradient(180deg,#2e2e33,#242428)] shadow-card transition-[left,width] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]"
+          style={{ left: pill.left, width: pill.width }}
+        />
+      ) : null}
       {items.map((item) => (
         <button
           key={item.key}
+          ref={(el) => {
+            if (el) refs.current.set(item.key, el);
+            else refs.current.delete(item.key);
+          }}
           type="button"
           aria-pressed={item.key === value}
           onClick={() => onChange(item.key)}
           className={cn(
-            "h-7 rounded-[6px] px-2.5 font-medium text-[12.5px] transition-colors",
+            "relative h-7 rounded-[6px] px-2.5 font-medium text-[12.5px] transition-colors duration-200",
             item.key === value
-              ? "bg-[linear-gradient(180deg,#2e2e33,#242428)] text-ink shadow-card"
+              ? cn(
+                  "text-ink",
+                  !pill &&
+                    "bg-[linear-gradient(180deg,#2e2e33,#242428)] shadow-card",
+                )
               : "text-muted hover:text-ink",
           )}
         >

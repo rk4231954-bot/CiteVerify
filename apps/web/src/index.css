@@ -98,6 +98,10 @@
   --animate-fade-in: fade-in 200ms ease-out both;
   --animate-slide-in-right: slide-in-right 280ms var(--ease-out-soft) both;
   --animate-shimmer: shimmer 1.6s linear infinite;
+  --animate-grow-x: grow-x 700ms var(--ease-out-soft) both;
+  --animate-grow-y: grow-y 520ms var(--ease-out-soft) both;
+  --animate-ping-soft: ping-soft 2.2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-spin-once: spin-once 600ms var(--ease-out-soft);
 
   @keyframes fade-up {
     from {
@@ -125,6 +129,41 @@
     to {
       opacity: 1;
       transform: none;
+    }
+  }
+  @keyframes grow-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+  @keyframes grow-y {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+  @keyframes ping-soft {
+    0% {
+      transform: scale(1);
+      opacity: 0.55;
+    }
+    70%,
+    100% {
+      transform: scale(2.6);
+      opacity: 0;
+    }
+  }
+  @keyframes spin-once {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
   @keyframes shimmer {
@@ -208,6 +247,34 @@
       rgb(255 255 255 / 0.02) 50%,
       rgb(255 255 255 / 0) 100%
     );
+  }
+  /* Cursor-following glow for interactive cards (position fed by trackSpotlight). */
+  .spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+  .spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 250ms ease-out;
+    background: radial-gradient(
+      260px circle at var(--mx, 50%) var(--my, 0%),
+      rgb(138 169 255 / 0.09),
+      transparent 70%
+    );
+  }
+  .spotlight:hover::before {
+    opacity: 1;
+  }
+  @media (hover: none) {
+    .spotlight::before {
+      display: none;
+    }
   }
   /* The app window: framed panel with a soft top glow, as in the reference design. */
   .app-window {
