@@ -19,6 +19,15 @@
     "lint": {},
     "typecheck": {
       "dependsOn": ["^db:generate", "db:generate"]
+    },
+    "test": {
+      "dependsOn": ["^db:generate"],
+      "inputs": [
+        "src/**",
+        "test/**",
+        "bunfig.toml",
+        "$TURBO_ROOT$/packages/database/prisma/**"
+      ]
     }
   }
 }

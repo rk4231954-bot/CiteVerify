@@ -42,7 +42,7 @@ Internal packages export TypeScript source directly (`"exports": "./src/index.ts
 
 ```bash
 bun install
-cp .env.example .env
+cp .env.example .env     # then set JWT_SECRET (openssl rand -hex 32)
 bun run db:generate     # generate the Prisma client
 bun run db:migrate:deploy   # create the SQLite database from migrations
 bun run db:seed         # optional: load synthetic demo data
@@ -60,6 +60,7 @@ bun run dev             # start web, api, and worker
 | `bun run build`       | Build all apps                 |
 | `bun run lint`        | Lint all workspaces with Biome |
 | `bun run typecheck`   | Type-check all workspaces      |
+| `bun run test`        | Run all tests                  |
 | `bun run format`      | Format the repo with Biome     |
 | `bun run db:generate` | Generate the Prisma client     |
 | `bun run db:migrate`  | Create + apply a migration     |
@@ -70,4 +71,4 @@ To run a single app: `bunx turbo run dev --filter=@citeverify/api`
 
 ## Environment
 
-See `.env.example`. A relative SQLite `DATABASE_URL` (e.g. `file:./dev.db`) always resolves inside `packages/database/`, whichever app is running. Database details: [`packages/database/README.md`](packages/database/README.md).
+See `.env.example`. API details: [`apps/api/README.md`](apps/api/README.md). A relative SQLite `DATABASE_URL` (e.g. `file:./dev.db`) always resolves inside `packages/database/`, whichever app is running. Database details: [`packages/database/README.md`](packages/database/README.md).

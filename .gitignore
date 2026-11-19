@@ -23,3 +23,7 @@ packages/database/src/generated/
 .DS_Store
 .vscode/
 .idea/
+
+# uploaded files (keep the directory)
+storage/uploads/*
+!storage/uploads/.gitkeep

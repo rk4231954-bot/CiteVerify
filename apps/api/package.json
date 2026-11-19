@@ -5,15 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "bun --env-file=../../.env --watch src/index.ts",
-    "build": "bun build src/index.ts --target bun --outdir dist",
+    "build": "bun build src/index.ts --target bun --packages=external --outdir dist",
     "start": "bun --env-file=../../.env dist/index.js",
     "lint": "biome lint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@citeverify/database": "workspace:*",
     "@citeverify/shared": "workspace:*",
-    "hono": "^4.13.19"
+    "hono": "^4.13.19",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@citeverify/config": "workspace:*",

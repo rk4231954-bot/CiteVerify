@@ -11,6 +11,7 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
     "format": "biome format --write .",
     "db:generate": "turbo run db:generate --filter=@citeverify/database",
     "db:migrate": "bun run --cwd packages/database db:migrate",

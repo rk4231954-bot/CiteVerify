@@ -33,7 +33,7 @@ model Document {
   userId           String
   title            String
   originalFilename String
-  filePath         String
+  filePath         String? // relative to UPLOAD_DIR; null for metadata-only records
   fileType         String // MIME type, e.g. "application/pdf"
   fileSize         Int // bytes
   status           String   @default("UPLOADED") // DocumentStatus
