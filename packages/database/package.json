@@ -8,18 +8,23 @@
   },
   "scripts": {
     "db:generate": "prisma generate",
+    "db:generate:pg": "DATABASE_PROVIDER=postgresql prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:reset": "prisma migrate reset",
     "db:push": "prisma db push",
     "db:seed": "bun prisma/seed.ts",
     "db:studio": "prisma studio",
+    "db:pg:sync": "bun scripts/sync-postgres-schema.ts",
+    "db:pg:check": "bun scripts/sync-postgres-schema.ts --check",
     "lint": "biome lint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@citeverify/shared": "workspace:*",
     "@prisma/adapter-libsql": "7.10.1",
+    "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "7.10.1"
   },
   "devDependencies": {

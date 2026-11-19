@@ -75,3 +75,8 @@ To run a single app: `bunx turbo run dev --filter=@citeverify/api`
 ## Environment
 
 See `.env.example`. API details: [`apps/api/README.md`](apps/api/README.md). Web app details: [`apps/web/README.md`](apps/web/README.md). A relative SQLite `DATABASE_URL` (e.g. `file:./dev.db`) always resolves inside `packages/database/`, whichever app is running. Database details: [`packages/database/README.md`](packages/database/README.md).
+
+## Deployment
+
+- Web app: Vercel ([`apps/web/README.md`](apps/web/README.md#deploy-vercel)).
+- API + PostgreSQL + upload volume: Railway ([`docs/deploy-railway.md`](docs/deploy-railway.md)).

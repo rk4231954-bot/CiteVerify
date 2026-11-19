@@ -18,13 +18,13 @@ bunx turbo run dev --filter=@citeverify/web
 
 `vercel.json` at the **repo root** configures the deployment. Use the repo root as the Vercel project root so that the Bun workspace (`packages/ui`, `packages/shared`, `packages/config`) is installed:
 
-| Setting          | Value                                  |
-| ---------------- | -------------------------------------- |
-| Install          | `bun install --frozen-lockfile`        |
-| Build            | `bun run --cwd apps/web build`         |
-| Output           | `apps/web/dist`                        |
-| SPA fallback     | every non-asset path → `/index.html`   |
-| Caching          | `/assets/*` immutable for 1 year (hashed file names) |
+| Setting      | Value                                                |
+| ------------ | ---------------------------------------------------- |
+| Install      | `bun install --frozen-lockfile`                      |
+| Build        | `bun run --cwd apps/web build`                       |
+| Output       | `apps/web/dist`                                      |
+| SPA fallback | every non-asset path → `/index.html`                 |
+| Caching      | `/assets/*` immutable for 1 year (hashed file names) |
 
 Set `VITE_API_BASE_URL` for the Preview and Production environments in the Vercel project. The API must also allow the deployment's origin through CORS (`FRONTEND_URL` on the API). `.vercelignore` keeps `.env`, databases and uploads out of the upload.
 
@@ -35,20 +35,20 @@ bunx --bun vercel deploy --prod          # production, only when approved
 
 ## Pages
 
-| Route                               | Page                                                                                                                                  |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
-| `/login`, `/register`               | Authentication                                                                                                                        |
-| `/`                                 | Overview: bento dashboard with stats, verdict donut, activity, evidence availability, confidence distribution and the review queue |
-| `/documents`                        | My Documents data grid (search, filter, sort, pagination, delete)                                                                      |
-| `/upload`                           | Drag-and-drop upload (PDF/DOCX, limits from `/api/config`), then the 7-stage processing journey                                       |
-| `/documents/:id`                    | Document analysis: tabs for overview, extracted text, claims, citations, publications, relationship graph and verification           |
-| `/documents/:id/workspace?claim=`   | Split-view evidence workspace. Left: claim, citations and context. Right: publications, evidence and the verdict                      |
-| `/claims?tab=claims\|citations\|publications` | Cross-document data grids with detail drawers                                                                        |
-| `/verification?verdict=&review=1`   | Verification results: all 7 verdicts, filters and a detail drawer                                                                     |
-| `/discovery`                        | Masonry view of the retrieved publications                                                                                            |
-| `/publications/:id`                 | Publication metadata, abstract and stored evidence (extract or re-extract)                                                           |
-| `/reports`, `/reports/:id`          | Reports assembled client-side: download as Markdown or JSON, or print to PDF                                                         |
-| `/settings`                         | Account details and the server's capabilities                                                                                         |
+| Route                                         | Page                                                                                                                               |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `/login`, `/register`                         | Authentication                                                                                                                     |
+| `/`                                           | Overview: bento dashboard with stats, verdict donut, activity, evidence availability, confidence distribution and the review queue |
+| `/documents`                                  | My Documents data grid (search, filter, sort, pagination, delete)                                                                  |
+| `/upload`                                     | Drag-and-drop upload (PDF/DOCX, limits from `/api/config`), then the 7-stage processing journey                                    |
+| `/documents/:id`                              | Document analysis: tabs for overview, extracted text, claims, citations, publications, relationship graph and verification         |
+| `/documents/:id/workspace?claim=`             | Split-view evidence workspace. Left: claim, citations and context. Right: publications, evidence and the verdict                   |
+| `/claims?tab=claims\|citations\|publications` | Cross-document data grids with detail drawers                                                                                      |
+| `/verification?verdict=&review=1`             | Verification results: all 7 verdicts, filters and a detail drawer                                                                  |
+| `/discovery`                                  | Masonry view of the retrieved publications                                                                                         |
+| `/publications/:id`                           | Publication metadata, abstract and stored evidence (extract or re-extract)                                                         |
+| `/reports`, `/reports/:id`                    | Reports assembled client-side: download as Markdown or JSON, or print to PDF                                                       |
+| `/settings`                                   | Account details and the server's capabilities                                                                                      |
 
 ## Structure
 

@@ -19,7 +19,23 @@ import {
   RetrievalStatus,
   Verdict,
 } from "@citeverify/shared";
-import { prisma, serializeAuthors } from "../src/index.ts";
+import {
+  prisma,
+  resolveDatabaseProvider,
+  serializeAuthors,
+} from "../src/index.ts";
+
+// The demo account has a published password, so it must never reach a shared
+// database. The seed only runs against local SQLite outside production.
+if (
+  process.env.NODE_ENV === "production" ||
+  resolveDatabaseProvider() !== "sqlite"
+) {
+  console.error(
+    "[seed] Refusing to seed: demo data is for local SQLite development only.",
+  );
+  process.exit(1);
+}
 
 const DEMO_EMAIL = "demo@citeverify.local";
 const DEMO_PASSWORD = "demo-password";

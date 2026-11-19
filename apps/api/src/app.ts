@@ -6,6 +6,7 @@ import { env } from "./config/env.ts";
 import { errorHandler } from "./middleware/error-handler.ts";
 import { apiRoutes } from "./routes/index.ts";
 import type { AppEnv } from "./types/index.ts";
+import { matchOrigin } from "./utils/cors-origins.ts";
 import { fail } from "./utils/response.ts";
 
 export function createApp() {
@@ -16,7 +17,8 @@ export function createApp() {
   app.use(
     "/api/*",
     cors({
-      origin: env.FRONTEND_URL,
+      // Echo the request origin only when it is on the FRONTEND_URL allow-list.
+      origin: (origin) => matchOrigin(env.CORS_ORIGINS, origin),
       allowMethods: ["GET", "POST", "DELETE", "OPTIONS"],
       allowHeaders: ["Content-Type", "Authorization"],
       maxAge: 600,

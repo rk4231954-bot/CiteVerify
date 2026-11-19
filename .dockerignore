@@ -1,0 +1,17 @@
+# Never send secrets, local data or build output into the image.
+.env
+.env.*
+!.env.example
+**/*.db
+**/*.db-journal
+storage/
+.vercel/
+.turbo/
+**/node_modules/
+**/dist/
+packages/database/src/generated/
+# The web app is deployed on Vercel; only its manifest is needed for the lockfile.
+apps/web/*
+!apps/web/package.json
+.git/
+*.log

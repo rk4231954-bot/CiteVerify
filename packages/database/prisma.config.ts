@@ -1,10 +1,18 @@
 import { defineConfig } from "prisma/config";
-import { resolveDatabaseUrl } from "./src/config.ts";
+import {
+  PRISMA_PATHS,
+  resolveDatabaseProvider,
+  resolveDatabaseUrl,
+} from "./src/config.ts";
+
+// SQLite (local development) and PostgreSQL (production) each have their own
+// schema file and migration history; DATABASE_PROVIDER / DATABASE_URL selects one.
+const paths = PRISMA_PATHS[resolveDatabaseProvider()];
 
 export default defineConfig({
-  schema: "prisma/schema.prisma",
+  schema: paths.schema,
   migrations: {
-    path: "prisma/migrations",
+    path: paths.migrations,
     seed: "bun prisma/seed.ts",
   },
   datasource: { url: resolveDatabaseUrl() },

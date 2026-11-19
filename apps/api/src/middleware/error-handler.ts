@@ -3,6 +3,7 @@ import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { env } from "../config/env.ts";
 import { AppError, Errors } from "../utils/errors.ts";
+import { logError } from "../utils/log.ts";
 import { fail } from "../utils/response.ts";
 
 const send = (c: Context, e: AppError) =>
@@ -31,15 +32,21 @@ export function errorHandler(error: Error, c: Context) {
   if (
     error instanceof Prisma.PrismaClientInitializationError ||
     error instanceof Prisma.PrismaClientRustPanicError ||
-    /ConnectionFailed|SQLITE_(CANTOPEN|BUSY|LOCKED|IOERR)|ECONNREFUSED/.test(
+    /ConnectionFailed|SQLITE_(CANTOPEN|BUSY|LOCKED|IOERR)|ECONNREFUSED|ECONNRESET|ETIMEDOUT|ENOTFOUND|Connection terminated|too many clients|the database system is (starting up|shutting down)|P1001|P1002|P1017/.test(
       error.message,
     )
   ) {
-    console.error("[api] database error:", error);
+    logError("database error", error, {
+      method: c.req.method,
+      path: c.req.path,
+    });
     return send(c, Errors.databaseUnavailable());
   }
 
-  console.error("[api] unhandled error:", error);
+  logError("unhandled error", error, {
+    method: c.req.method,
+    path: c.req.path,
+  });
   const message =
     env.NODE_ENV === "production" ? "Internal server error" : error.message;
   return fail(c, 500, "INTERNAL_ERROR", message);

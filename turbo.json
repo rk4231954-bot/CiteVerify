@@ -4,8 +4,14 @@
   "globalDependencies": [".env"],
   "tasks": {
     "db:generate": {
-      "inputs": ["prisma/schema.prisma", "prisma.config.ts"],
-      "outputs": ["src/generated/**"]
+      "inputs": [
+        "prisma/schema.prisma",
+        "prisma/postgres/schema.prisma",
+        "prisma.config.ts",
+        "src/config.ts"
+      ],
+      "outputs": ["src/generated/**"],
+      "env": ["DATABASE_PROVIDER", "DATABASE_URL"]
     },
     "build": {
       "dependsOn": ["^build", "^db:generate", "db:generate"],

@@ -11,6 +11,7 @@ import { DocumentStatus, ExtractionStatus } from "@citeverify/shared";
 import { documentRepository } from "../repositories/document.repository.ts";
 import { extractionRepository } from "../repositories/extraction.repository.ts";
 import { AppError, Errors } from "../utils/errors.ts";
+import { logError } from "../utils/log.ts";
 import { storageService } from "./storage.service.ts";
 
 /** A PROCESSING state older than this is considered abandoned and may be retried. */
@@ -124,7 +125,7 @@ export const extractionService = {
         });
       } catch (saveError) {
         // e.g. database unavailable: make sure the document isn't stuck in PROCESSING
-        console.error("[api] could not record failed extraction:", saveError);
+        logError("could not record failed extraction", saveError);
         await extractionRepository
           .setDocumentStatus(doc.id, DocumentStatus.FAILED)
           .catch(() => {});

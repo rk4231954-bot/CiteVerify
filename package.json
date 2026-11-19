@@ -19,7 +19,9 @@
     "db:reset": "bun run --cwd packages/database db:reset",
     "db:push": "bun run --cwd packages/database db:push",
     "db:seed": "bun run --cwd packages/database db:seed",
-    "db:studio": "bun run --cwd packages/database db:studio"
+    "db:studio": "bun run --cwd packages/database db:studio",
+    "db:pg:sync": "bun run --cwd packages/database db:pg:sync",
+    "db:pg:check": "bun run --cwd packages/database db:pg:check"
   },
   "devDependencies": {
     "@biomejs/biome": "2.6.8",

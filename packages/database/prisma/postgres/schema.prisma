@@ -1,0 +1,350 @@
+// GENERATED from prisma/schema.prisma by scripts/sync-postgres-schema.ts.
+// Do not edit: change prisma/schema.prisma, then run `bun run db:pg:sync`
+// and create a PostgreSQL migration (see packages/database/README.md).
+//
+// CiteVerify database schema (PostgreSQL).
+//
+// SQLite has no native enums, so status-like columns are TEXT. The allowed
+// values live in @citeverify/shared (constants + zod schemas); the comment on
+// each such column names the constant it must hold.
+//
+// Multi-value text fields (e.g. `authors`) are stored as a JSON-encoded
+// string array, e.g. '["Doe, J.","Roe, A."]'.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../../src/generated/prisma"
+  runtime  = "bun"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  documents Document[]
+}
+
+model Document {
+  id               String   @id @default(cuid())
+  userId           String
+  title            String
+  originalFilename String
+  filePath         String? // relative to UPLOAD_DIR; null for metadata-only records
+  fileType         String // MIME type, e.g. "application/pdf"
+  fileSize         Int // bytes
+  status           String   @default("UPLOADED") // DocumentStatus
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  claims     ExtractedClaim[]
+  citations  Citation[]
+  references Reference[]
+  jobs       VerificationJob[]
+  reports    VerificationReport[]
+  extraction DocumentExtraction?
+
+  @@index([userId])
+  @@index([status])
+}
+
+/// Latest text extraction of a document (re-running extraction replaces it).
+model DocumentExtraction {
+  id             String   @id @default(cuid())
+  documentId     String   @unique
+  status         String // ExtractionStatus
+  /// Full ExtractionResult as JSON (see @citeverify/document-parser); null when FAILED.
+  result         String?
+  errorCode      String?
+  errorMessage   String?
+  pageCount      Int?
+  paragraphCount Int      @default(0)
+  extractedAt    DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+}
+
+model ExtractedClaim {
+  id               String   @id @default(cuid())
+  documentId       String
+  originalText     String
+  normalizedText   String?
+  pageNumber       Int?
+  section          String?
+  confidence       Float? // 0..1, extraction confidence (NOT truth)
+  // Claim-extraction metadata. Nullable so legacy/seed rows need no invented values.
+  category         String? // ClaimCategory in @citeverify/shared
+  characteristics  String? // JSON array of ClaimCharacteristic
+  rationale        String? // JSON array: why the sentence was selected
+  extractionMethod String? // RULE_BASED | AI | MANUAL
+  paragraphId      String? // paragraph id in the stored DocumentExtraction result
+  position         Int? // reading-order index within the document's claims
+  fingerprint      String? // case/punctuation-insensitive key for duplicate prevention
+  createdAt        DateTime @default(now())
+
+  document      Document             @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  citationLinks ClaimCitation[] // a claim can cite several citations (and vice versa)
+  evidenceLinks ClaimEvidence[] // candidate evidence passages, ranked by relevance
+  results       VerificationResult[]
+
+  @@unique([documentId, fingerprint])
+  @@index([documentId])
+}
+
+model Citation {
+  id              String   @id @default(cuid())
+  documentId      String
+  citationText    String // in-text marker as written, e.g. "[2]" or "(Doe et al., 2021)"
+  citationType    String // CitationType
+  pageNumber      Int?
+  referenceId     String? // set ONLY for a confident (MATCHED) bibliography match
+  // Citation-detection metadata. Nullable so legacy/seed rows need no invented values.
+  // One row per cited item: "[1–3]" becomes three rows sharing citationText.
+  citationKey     String? // the cited item: "2", or "Smith et al., 2020a"
+  paragraphId     String? // paragraph id in the stored DocumentExtraction result
+  section         String?
+  charStart       Int? // marker offsets in the paragraph's cleanedText
+  charEnd         Int?
+  position        Int? // reading-order index within the document's detected citations
+  matchStatus     String? // CitationMatchStatus
+  matchConfidence Float? // 0..1, confidence of the reference match (NOT of scientific support)
+  matchCandidates String? // JSON: [{ referenceId, score, reasons }] — keeps uncertain matches visible
+  createdAt       DateTime @default(now())
+
+  document   Document        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  reference  Reference?      @relation(fields: [referenceId], references: [id], onDelete: SetNull)
+  claimLinks ClaimCitation[]
+
+  @@unique([documentId, paragraphId, charStart, citationKey]) // no duplicate detections
+  @@index([documentId])
+  @@index([referenceId])
+}
+
+/// Association between a claim and an in-text citation. A link records that the
+/// citation is attached to the claim's text — NOT that the source supports it.
+model ClaimCitation {
+  claimId    String
+  citationId String
+  status     String // ClaimCitationStatus: LINKED | NEEDS_REVIEW
+  confidence Float? // 0..1, confidence that the citation belongs to this claim
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  claim    ExtractedClaim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  citation Citation       @relation(fields: [citationId], references: [id], onDelete: Cascade)
+
+  @@id([claimId, citationId])
+  @@index([citationId])
+}
+
+/// One entry in a document's bibliography.
+model Reference {
+  id                         String    @id @default(cuid())
+  documentId                 String
+  rawText                    String
+  title                      String?
+  authors                    String? // JSON string array
+  year                       Int?
+  doi                        String? // normalised (lowercase, no URL/doi: prefix)
+  publicationId              String? // null until matched to a retrieved publication
+  // Reference-parsing metadata (nullable: only what the entry actually states).
+  label                      String? // bibliography number as written, e.g. "12"
+  venue                      String? // journal or publisher, when identifiable
+  yearSuffix                 String? // "a" in "2020a"
+  position                   Int? // order within the bibliography
+  paragraphId                String?
+  pageNumber                 Int?
+  fingerprint                String? // normalised raw text, for duplicate prevention
+  // Publication retrieval (nullable: unset until retrieval runs for this reference).
+  publicationMatchStatus     String? // PublicationMatchStatus; publicationId is set ONLY when MATCHED
+  publicationMatchConfidence Float? // 0..1, confidence that the publication is this reference
+  publicationMatchMethod     String? // DOI | TITLE
+  publicationCandidates      String? // JSON: provider candidates with scores — keeps uncertain matches visible
+  retrievalError             String? // provider failures from the last attempt
+  retrievedAt                DateTime?
+  createdAt                  DateTime  @default(now())
+
+  document    Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  publication Publication? @relation(fields: [publicationId], references: [id], onDelete: SetNull)
+  citations   Citation[]
+
+  @@unique([documentId, fingerprint])
+  @@index([documentId])
+  @@index([publicationId])
+}
+
+/// A source publication, shared across documents that cite it.
+model Publication {
+  id                  String    @id @default(cuid())
+  title               String
+  authors             String? // JSON string array
+  year                Int?
+  doi                 String?   @unique
+  abstract            String?
+  sourceUrl           String?
+  publisher           String?
+  openAccess          Boolean   @default(false) // true only when a provider reports it as open access
+  retrievalStatus     String    @default("PENDING") // RetrievalStatus
+  // Retrieved-metadata provenance. Metadata ≠ full text: nothing here implies the text is available.
+  openAlexId          String?   @unique // e.g. "W2741809807"; dedup key when there is no DOI
+  journal             String? // journal / source title
+  provider            String? // PublicationProvider(s) that supplied the metadata, primary first: "CROSSREF,OPENALEX"
+  openAccessStatus    String? // as reported by OpenAlex: gold | green | hybrid | bronze | diamond | closed
+  openAccessUrl       String?
+  retrievedAt         DateTime?
+  // Evidence extraction.
+  fullTextStatus      String? // FullTextStatus of the last attempt to obtain legally accessible full text
+  evidenceExtractedAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  references Reference[]
+  evidence   Evidence[]
+}
+
+/// A passage from a publication used to judge a claim.
+model Evidence {
+  id                   String   @id @default(cuid())
+  publicationId        String
+  sourceText           String // the passage exactly as it appears in the source
+  normalizedText       String? // whitespace/citation-marker normalised; numbers and wording unchanged
+  pageNumber           Int? // only when the source reliably provides it (never for abstracts)
+  section              String? // section heading as written in the source
+  evidenceType         String? // EvidenceType category; null for legacy rows that were never classified
+  evidenceAvailability String // EvidenceAvailability: ABSTRACT | FULL_TEXT | METADATA
+  sourceUrl            String? // where the passage was read from (landing page / open-access PDF)
+  extractionMethod     String? // EvidenceExtractionMethod; null for legacy rows
+  confidence           Float? // 0..1 classification confidence — NOT scientific truth
+  details              String? // JSON: verbatim sample sizes, statistics, design terms, source offsets
+  position             Int? // reading order within the publication's content
+  fingerprint          String? // case/punctuation-insensitive key for duplicate prevention
+  createdAt            DateTime @default(now())
+
+  publication       Publication            @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  claimLinks        ClaimEvidence[]
+  verificationLinks VerificationEvidence[] // snapshots keep their text if this row is deleted
+
+  @@unique([publicationId, fingerprint])
+  @@index([publicationId])
+}
+
+/// Candidate evidence for a claim, ranked by RELEVANCE (topical overlap). Not a verdict.
+model ClaimEvidence {
+  claimId        String
+  evidenceId     String
+  relevanceScore Float // 0..1 lexical relevance — says nothing about support or contradiction
+  rank           Int // 1 = most relevant for this claim
+  matchedTerms   String? // JSON: shared terms / numbers and the score breakdown
+  method         String // how the link was found, e.g. "LEXICAL"
+  createdAt      DateTime @default(now())
+
+  claim    ExtractedClaim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  evidence Evidence       @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+
+  @@id([claimId, evidenceId])
+  @@index([evidenceId])
+}
+
+/// One run of the verification pipeline over a document.
+model VerificationJob {
+  id              String    @id @default(cuid())
+  documentId      String
+  status          String    @default("PENDING") // JobStatus
+  currentStage    String? // JobStage
+  errorMessage    String?
+  // Verification-engine run metadata (nullable: legacy/seed jobs need no invented values).
+  method          String? // VerificationMethod: RULE_BASED | AI
+  totalClaims     Int?
+  processedClaims Int?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  document Document             @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  results  VerificationResult[]
+  report   VerificationReport?
+
+  @@index([documentId])
+  @@index([status])
+}
+
+/// The verdict for one claim in one verification run.
+model VerificationResult {
+  id                  String   @id @default(cuid())
+  claimId             String
+  verificationJobId   String
+  verdict             String // Verdict
+  explanation         String
+  confidence          Float // 0..1 confidence in the AUTOMATED assessment (API reports 0–100)
+  evidenceSummary     String?
+  humanReviewRequired Boolean  @default(false)
+  // Verification-engine output (nullable: legacy/seed rows need no invented values).
+  reasonCode          String? // which conservative rule produced the verdict
+  evidenceSource      String? // FULL_TEXT | ABSTRACT | MIXED | NONE — what the verdict rests on
+  verificationScope   String? // VerificationScope of the cited content
+  limitations         String? // JSON string array
+  details             String? // JSON: publications, unresolved citations, review reasons, rules applied
+  method              String? // VerificationMethod: RULE_BASED | AI
+  createdAt           DateTime @default(now())
+
+  claim    ExtractedClaim         @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  job      VerificationJob        @relation(fields: [verificationJobId], references: [id], onDelete: Cascade)
+  evidence VerificationEvidence[]
+
+  @@unique([claimId, verificationJobId]) // one verdict per claim per run
+  @@index([verificationJobId])
+}
+
+/// An evidence passage used by one verification result, with its role. The text
+/// and source reference are SNAPSHOTS, so a result stays explainable even if the
+/// Evidence row is later re-extracted (evidenceId is then set to null).
+model VerificationEvidence {
+  id                   String   @id @default(cuid())
+  resultId             String
+  evidenceId           String?
+  publicationId        String // snapshot (no FK): the publication the passage came from
+  role                 String // SUPPORTING | CONTRADICTING | CONTEXT | LIMITATION
+  stance               String // AGREES | PARTIAL | DISAGREES | NEUTRAL
+  relevanceScore       Float? // 0..1 topical relevance — NOT support
+  rationale            String? // JSON: { flags, rationale }
+  sourceText           String // verbatim passage
+  evidenceType         String?
+  evidenceAvailability String // ABSTRACT | FULL_TEXT
+  section              String?
+  pageNumber           Int?
+  sourceUrl            String?
+  position             Int // order within the result
+  createdAt            DateTime @default(now())
+
+  result   VerificationResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  evidence Evidence?          @relation(fields: [evidenceId], references: [id], onDelete: SetNull)
+
+  @@index([resultId])
+  @@index([evidenceId])
+}
+
+/// Final report for one verification run of a document.
+model VerificationReport {
+  id                String   @id @default(cuid())
+  documentId        String
+  verificationJobId String   @unique // one report per run
+  summary           String
+  reportPath        String?
+  createdAt         DateTime @default(now())
+
+  document Document        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  job      VerificationJob @relation(fields: [verificationJobId], references: [id], onDelete: Cascade)
+
+  @@index([documentId])
+}
