@@ -9,4 +9,6 @@ export const documentRoutes = new Hono<AppEnv>()
   .post("/", ...documents.create)
   .get("/", ...documents.list)
   .get("/:id", ...documents.getById)
+  .post("/:id/extract", ...documents.extract)
+  .get("/:id/extraction", ...documents.getExtraction)
   .delete("/:id", ...documents.remove);

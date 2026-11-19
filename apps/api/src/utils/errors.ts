@@ -31,6 +31,8 @@ export const Errors = {
     ),
   unsupportedFile: (message = "Only PDF and DOCX files are supported") =>
     new AppError(415, "UNSUPPORTED_FILE_TYPE", message),
+  extractionFailed: (message: string, reason: string) =>
+    new AppError(422, "EXTRACTION_FAILED", message, { reason }),
   databaseUnavailable: () =>
     new AppError(503, "DATABASE_UNAVAILABLE", "Database is unavailable"),
 };

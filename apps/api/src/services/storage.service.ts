@@ -14,6 +14,14 @@ export const storageService = {
     return relativePath;
   },
 
+  /** Reads a stored file, or returns null if it no longer exists. */
+  async read(relativePath: string): Promise<Uint8Array | null> {
+    const file = Bun.file(this.resolve(relativePath));
+    return (await file.exists())
+      ? new Uint8Array(await file.arrayBuffer())
+      : null;
+  },
+
   /** Best-effort delete; a missing file is not an error. */
   async remove(relativePath: string): Promise<void> {
     try {

@@ -16,7 +16,7 @@ packages/
   shared/                 Types, schemas, constants shared everywhere
   database/               Prisma schema + client (SQLite)
   ui/                     Shared React components
-  document-parser/        Document text extraction                (worker only)
+  document-parser/        PDF/DOCX text extraction                (api, worker)
   citation-engine/        Citation extraction / resolution        (worker only)
   verification-engine/    Claim-vs-source verification            (worker only)
 ```
@@ -26,11 +26,11 @@ Dependency rules:
 | Workspace        | May depend on                                                                     |
 | ---------------- | --------------------------------------------------------------------------------- |
 | `web`            | `ui`, `shared`                                                                    |
-| `api`            | `database`, `shared`                                                              |
+| `api`            | `database`, `shared`, `document-parser`                                           |
 | `worker`         | `database`, `shared`, `document-parser`, `citation-engine`, `verification-engine` |
 | engines / parser | `shared`                                                                          |
 
-The frontend never touches the database or the processing engines. Heavy processing lives in the worker, not in the API.
+The frontend never touches the database or the processing engines. Heavy processing (citation and verification engines) lives in the worker. The API calls only the document parser, which runs quickly and synchronously.
 
 Internal packages export TypeScript source directly (`"exports": "./src/index.ts"`), so they have no build step.
 

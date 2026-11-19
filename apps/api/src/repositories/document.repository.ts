@@ -67,5 +67,17 @@ export const documentRepository = {
       select: { id: true, filePath: true },
     }),
 
+  findForExtraction: (id: string, userId: string) =>
+    prisma.document.findFirst({
+      where: { id, userId },
+      select: { id: true, filePath: true, fileType: true, status: true },
+    }),
+
+  findStatusForUser: (id: string, userId: string) =>
+    prisma.document.findFirst({
+      where: { id, userId },
+      select: { id: true, status: true },
+    }),
+
   delete: (id: string) => prisma.document.delete({ where: { id } }),
 };

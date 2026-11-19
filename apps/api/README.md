@@ -36,6 +36,17 @@ Auth: `Authorization: Bearer <token>`. If a document belongs to another user, th
 | 500    | `INTERNAL_ERROR` (the message is hidden in production) |
 | 503    | `DATABASE_UNAVAILABLE`                                 |
 
+## Extraction flow
+
+`POST /extract` runs synchronously:
+
+1. Check ownership, that the document has a file, and that the format is supported.
+2. Claim the document by setting `PROCESSING` atomically. A second request gets 409. A `PROCESSING` state older than 10 minutes counts as abandoned.
+3. Read the file read-only and parse it.
+4. Upsert the single `DocumentExtraction` row and set the document status in one transaction.
+
+The document status becomes `EXTRACTED` on `COMPLETED` or `PARTIAL`, and `FAILED` on `EMPTY` or on a parse error. Parse errors are also stored, so `GET /extraction` shows them. Re-running replaces the previous result.
+
 ## Layout
 
 ```

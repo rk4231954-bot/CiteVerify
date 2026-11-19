@@ -31,7 +31,9 @@ export function errorHandler(error: Error, c: Context) {
   if (
     error instanceof Prisma.PrismaClientInitializationError ||
     error instanceof Prisma.PrismaClientRustPanicError ||
-    /ConnectionFailed|SQLITE_(CANTOPEN|BUSY|LOCKED|IOERR)|ECONNREFUSED/.test(error.message)
+    /ConnectionFailed|SQLITE_(CANTOPEN|BUSY|LOCKED|IOERR)|ECONNREFUSED/.test(
+      error.message,
+    )
   ) {
     console.error("[api] database error:", error);
     return send(c, Errors.databaseUnavailable());

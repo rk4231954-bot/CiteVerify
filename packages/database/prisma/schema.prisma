@@ -46,9 +46,28 @@ model Document {
   references Reference[]
   jobs       VerificationJob[]
   reports    VerificationReport[]
+  extraction DocumentExtraction?
 
   @@index([userId])
   @@index([status])
+}
+
+/// Latest text extraction of a document (re-running extraction replaces it).
+model DocumentExtraction {
+  id             String   @id @default(cuid())
+  documentId     String   @unique
+  status         String // ExtractionStatus
+  /// Full ExtractionResult as JSON (see @citeverify/document-parser); null when FAILED.
+  result         String?
+  errorCode      String?
+  errorMessage   String?
+  pageCount      Int?
+  paragraphCount Int      @default(0)
+  extractedAt    DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  document Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
 }
 
 model ExtractedClaim {

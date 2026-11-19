@@ -7,6 +7,8 @@
 export const DocumentStatus = {
   UPLOADED: "UPLOADED",
   PROCESSING: "PROCESSING",
+  /** Text extraction finished; ready for claim extraction. */
+  EXTRACTED: "EXTRACTED",
   COMPLETED: "COMPLETED",
   FAILED: "FAILED",
 } as const;
@@ -69,3 +71,17 @@ export const EvidenceType = {
   METADATA: "METADATA",
 } as const;
 export type EvidenceType = (typeof EvidenceType)[keyof typeof EvidenceType];
+
+/** Outcome of document text extraction. */
+export const ExtractionStatus = {
+  /** Text extracted from every page/section. */
+  COMPLETED: "COMPLETED",
+  /** Some text extracted, but parts (e.g. pages) had none or failed. */
+  PARTIAL: "PARTIAL",
+  /** Readable file but no extractable text (e.g. scanned images; OCR is not supported). */
+  EMPTY: "EMPTY",
+  /** The file could not be parsed (corrupted, encrypted, missing, unsupported). */
+  FAILED: "FAILED",
+} as const;
+export type ExtractionStatus =
+  (typeof ExtractionStatus)[keyof typeof ExtractionStatus];

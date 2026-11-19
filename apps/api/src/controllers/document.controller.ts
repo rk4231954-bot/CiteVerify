@@ -3,6 +3,7 @@ import { createFactory } from "hono/factory";
 import { env } from "../config/env.ts";
 import { validate } from "../middleware/validate.ts";
 import { documentService } from "../services/document.service.ts";
+import { extractionService } from "../services/extraction.service.ts";
 import type { AppEnv } from "../types/index.ts";
 import { Errors } from "../utils/errors.ts";
 import { ok } from "../utils/response.ts";
@@ -75,4 +76,22 @@ export const upload = factory.createHandlers(
     const result = await documentService.upload(c.get("userId"), file, title);
     return ok(c, result, 201);
   },
+);
+
+export const extract = factory.createHandlers(
+  validate("param", documentIdParamSchema),
+  async (c) =>
+    ok(
+      c,
+      await extractionService.extract(c.get("userId"), c.req.valid("param").id),
+    ),
+);
+
+export const getExtraction = factory.createHandlers(
+  validate("param", documentIdParamSchema),
+  async (c) =>
+    ok(
+      c,
+      await extractionService.get(c.get("userId"), c.req.valid("param").id),
+    ),
 );
