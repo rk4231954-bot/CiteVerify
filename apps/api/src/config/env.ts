@@ -27,6 +27,23 @@ const envSchema = z.object({
     .int()
     .positive()
     .default(10 * 1024 * 1024), // bytes
+  // Publication retrieval (Crossref / OpenAlex). No credentials are required.
+  /** Contact email for the providers' "polite pool" (sent as mailto + User-Agent). */
+  PUBLICATION_CONTACT_EMAIL: z
+    .union([z.literal(""), z.email()])
+    .optional()
+    .transform((v) => v || undefined),
+  /** Optional OpenAlex API key (premium / higher limits). */
+  OPENALEX_API_KEY: z
+    .string()
+    .optional()
+    .transform((v) => v || undefined),
+  PUBLICATION_RETRIEVAL_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1000)
+    .max(60_000)
+    .default(10_000),
 });
 
 function loadEnv() {

@@ -33,6 +33,14 @@ export const Errors = {
     new AppError(415, "UNSUPPORTED_FILE_TYPE", message),
   extractionFailed: (message: string, reason: string) =>
     new AppError(422, "EXTRACTION_FAILED", message, { reason }),
+  aiProviderNotConfigured: () =>
+    new AppError(
+      501,
+      "AI_PROVIDER_NOT_CONFIGURED",
+      "AI claim extraction is not configured on this server; use method RULE_BASED",
+    ),
+  aiProviderFailed: (message: string) =>
+    new AppError(502, "AI_PROVIDER_ERROR", message),
   databaseUnavailable: () =>
     new AppError(503, "DATABASE_UNAVAILABLE", "Database is unavailable"),
 };

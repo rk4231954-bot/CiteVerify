@@ -1,0 +1,23 @@
+{
+  "name": "@citeverify/publication-retriever",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "lint": "biome lint .",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "@citeverify/citation-engine": "workspace:*",
+    "@citeverify/shared": "workspace:*",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@citeverify/config": "workspace:*",
+    "@types/bun": "^1.4.4"
+  }
+}

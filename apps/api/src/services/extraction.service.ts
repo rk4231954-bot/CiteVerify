@@ -29,19 +29,27 @@ const USABLE: ReadonlySet<string> = new Set([
   ExtractionStatus.PARTIAL,
 ]);
 
-function toPublic(record: DocumentExtraction, result?: ExtractionResult) {
-  let parsed: ExtractionResult | null = result ?? null;
-  if (!parsed && record.result) {
-    try {
-      parsed = parseExtractionResult(JSON.parse(record.result));
-    } catch {
-      throw new AppError(
-        500,
-        "EXTRACTION_UNREADABLE",
-        "Stored extraction is invalid; re-run extraction",
-      );
-    }
+/** Extraction outcomes that can feed claim extraction. */
+export const isUsableExtraction = (status: string) => USABLE.has(status);
+
+/** Parses and validates the stored extraction JSON (null when none was stored). */
+export function readStoredResult(
+  record: Pick<DocumentExtraction, "result">,
+): ExtractionResult | null {
+  if (!record.result) return null;
+  try {
+    return parseExtractionResult(JSON.parse(record.result));
+  } catch {
+    throw new AppError(
+      500,
+      "EXTRACTION_UNREADABLE",
+      "Stored extraction is invalid; re-run extraction",
+    );
   }
+}
+
+function toPublic(record: DocumentExtraction, result?: ExtractionResult) {
+  const parsed = result ?? readStoredResult(record);
   return {
     status: record.status,
     errorCode: record.errorCode,

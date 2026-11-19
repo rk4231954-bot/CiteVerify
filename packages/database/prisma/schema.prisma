@@ -71,73 +71,134 @@ model DocumentExtraction {
 }
 
 model ExtractedClaim {
-  id             String   @id @default(cuid())
-  documentId     String
-  originalText   String
-  normalizedText String?
-  pageNumber     Int?
-  section        String?
-  confidence     Float? // 0..1, extraction confidence
-  createdAt      DateTime @default(now())
+  id               String   @id @default(cuid())
+  documentId       String
+  originalText     String
+  normalizedText   String?
+  pageNumber       Int?
+  section          String?
+  confidence       Float? // 0..1, extraction confidence (NOT truth)
+  // Claim-extraction metadata. Nullable so legacy/seed rows need no invented values.
+  category         String? // ClaimCategory in @citeverify/shared
+  characteristics  String? // JSON array of ClaimCharacteristic
+  rationale        String? // JSON array: why the sentence was selected
+  extractionMethod String? // RULE_BASED | AI | MANUAL
+  paragraphId      String? // paragraph id in the stored DocumentExtraction result
+  position         Int? // reading-order index within the document's claims
+  fingerprint      String? // case/punctuation-insensitive key for duplicate prevention
+  createdAt        DateTime @default(now())
 
-  document  Document             @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  citations Citation[] // a claim can be backed by several citations (and vice versa)
-  results   VerificationResult[]
+  document      Document             @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  citationLinks ClaimCitation[] // a claim can cite several citations (and vice versa)
+  results       VerificationResult[]
 
+  @@unique([documentId, fingerprint])
   @@index([documentId])
 }
 
 model Citation {
-  id           String   @id @default(cuid())
-  documentId   String
-  citationText String // in-text marker as written, e.g. "[2]" or "(Doe et al., 2021)"
-  citationType String // CitationType
-  pageNumber   Int?
-  referenceId  String? // null until resolved to a bibliography entry
-  createdAt    DateTime @default(now())
+  id              String   @id @default(cuid())
+  documentId      String
+  citationText    String // in-text marker as written, e.g. "[2]" or "(Doe et al., 2021)"
+  citationType    String // CitationType
+  pageNumber      Int?
+  referenceId     String? // set ONLY for a confident (MATCHED) bibliography match
+  // Citation-detection metadata. Nullable so legacy/seed rows need no invented values.
+  // One row per cited item: "[1–3]" becomes three rows sharing citationText.
+  citationKey     String? // the cited item: "2", or "Smith et al., 2020a"
+  paragraphId     String? // paragraph id in the stored DocumentExtraction result
+  section         String?
+  charStart       Int? // marker offsets in the paragraph's cleanedText
+  charEnd         Int?
+  position        Int? // reading-order index within the document's detected citations
+  matchStatus     String? // CitationMatchStatus
+  matchConfidence Float? // 0..1, confidence of the reference match (NOT of scientific support)
+  matchCandidates String? // JSON: [{ referenceId, score, reasons }] — keeps uncertain matches visible
+  createdAt       DateTime @default(now())
 
-  document  Document         @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  reference Reference?       @relation(fields: [referenceId], references: [id], onDelete: SetNull)
-  claims    ExtractedClaim[]
+  document   Document        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  reference  Reference?      @relation(fields: [referenceId], references: [id], onDelete: SetNull)
+  claimLinks ClaimCitation[]
 
+  @@unique([documentId, paragraphId, charStart, citationKey]) // no duplicate detections
   @@index([documentId])
   @@index([referenceId])
 }
 
+/// Association between a claim and an in-text citation. A link records that the
+/// citation is attached to the claim's text — NOT that the source supports it.
+model ClaimCitation {
+  claimId    String
+  citationId String
+  status     String // ClaimCitationStatus: LINKED | NEEDS_REVIEW
+  confidence Float? // 0..1, confidence that the citation belongs to this claim
+  reason     String?
+  createdAt  DateTime @default(now())
+
+  claim    ExtractedClaim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  citation Citation       @relation(fields: [citationId], references: [id], onDelete: Cascade)
+
+  @@id([claimId, citationId])
+  @@index([citationId])
+}
+
 /// One entry in a document's bibliography.
 model Reference {
-  id            String   @id @default(cuid())
-  documentId    String
-  rawText       String
-  title         String?
-  authors       String? // JSON string array
-  year          Int?
-  doi           String?
-  publicationId String? // null until matched to a retrieved publication
-  createdAt     DateTime @default(now())
+  id                         String    @id @default(cuid())
+  documentId                 String
+  rawText                    String
+  title                      String?
+  authors                    String? // JSON string array
+  year                       Int?
+  doi                        String? // normalised (lowercase, no URL/doi: prefix)
+  publicationId              String? // null until matched to a retrieved publication
+  // Reference-parsing metadata (nullable: only what the entry actually states).
+  label                      String? // bibliography number as written, e.g. "12"
+  venue                      String? // journal or publisher, when identifiable
+  yearSuffix                 String? // "a" in "2020a"
+  position                   Int? // order within the bibliography
+  paragraphId                String?
+  pageNumber                 Int?
+  fingerprint                String? // normalised raw text, for duplicate prevention
+  // Publication retrieval (nullable: unset until retrieval runs for this reference).
+  publicationMatchStatus     String? // PublicationMatchStatus; publicationId is set ONLY when MATCHED
+  publicationMatchConfidence Float? // 0..1, confidence that the publication is this reference
+  publicationMatchMethod     String? // DOI | TITLE
+  publicationCandidates      String? // JSON: provider candidates with scores — keeps uncertain matches visible
+  retrievalError             String? // provider failures from the last attempt
+  retrievedAt                DateTime?
+  createdAt                  DateTime  @default(now())
 
-  document     Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
-  publication  Publication? @relation(fields: [publicationId], references: [id], onDelete: SetNull)
-  citations    Citation[]
+  document    Document     @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  publication Publication? @relation(fields: [publicationId], references: [id], onDelete: SetNull)
+  citations   Citation[]
 
+  @@unique([documentId, fingerprint])
   @@index([documentId])
   @@index([publicationId])
 }
 
 /// A source publication, shared across documents that cite it.
 model Publication {
-  id              String   @id @default(cuid())
-  title           String
-  authors         String? // JSON string array
-  year            Int?
-  doi             String?  @unique
-  abstract        String?
-  sourceUrl       String?
-  publisher       String?
-  openAccess      Boolean  @default(false)
-  retrievalStatus String   @default("PENDING") // RetrievalStatus
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id               String    @id @default(cuid())
+  title            String
+  authors          String? // JSON string array
+  year             Int?
+  doi              String?   @unique
+  abstract         String?
+  sourceUrl        String?
+  publisher        String?
+  openAccess       Boolean   @default(false) // true only when a provider reports it as open access
+  retrievalStatus  String    @default("PENDING") // RetrievalStatus
+  // Retrieved-metadata provenance. Metadata ≠ full text: nothing here implies the text is available.
+  openAlexId       String?   @unique // e.g. "W2741809807"; dedup key when there is no DOI
+  journal          String? // journal / source title
+  provider         String? // PublicationProvider(s) that supplied the metadata, primary first: "CROSSREF,OPENALEX"
+  openAccessStatus String? // as reported by OpenAlex: gold | green | hybrid | bronze | diamond | closed
+  openAccessUrl    String?
+  retrievedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   references Reference[]
   evidence   Evidence[]

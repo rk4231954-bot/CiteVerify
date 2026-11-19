@@ -12,8 +12,11 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@citeverify/citation-engine": "workspace:*",
+    "@citeverify/claim-extractor": "workspace:*",
     "@citeverify/database": "workspace:*",
     "@citeverify/document-parser": "workspace:*",
+    "@citeverify/publication-retriever": "workspace:*",
     "@citeverify/shared": "workspace:*",
     "hono": "^4.13.19",
     "zod": "^4.6.7"

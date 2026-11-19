@@ -17,18 +17,20 @@ packages/
   database/               Prisma schema + client (SQLite)
   ui/                     Shared React components
   document-parser/        PDF/DOCX text extraction                (api, worker)
-  citation-engine/        Citation extraction / resolution        (worker only)
+  claim-extractor/        Scientific claim extraction             (api, worker)
+  citation-engine/        Citation detection + reference matching (api, worker)
+  publication-retriever/  Publication metadata (Crossref, OpenAlex) (api, worker)
   verification-engine/    Claim-vs-source verification            (worker only)
 ```
 
 Dependency rules:
 
-| Workspace        | May depend on                                                                     |
-| ---------------- | --------------------------------------------------------------------------------- |
-| `web`            | `ui`, `shared`                                                                    |
-| `api`            | `database`, `shared`, `document-parser`                                           |
-| `worker`         | `database`, `shared`, `document-parser`, `citation-engine`, `verification-engine` |
-| engines / parser | `shared`                                                                          |
+| Workspace        | May depend on                                                                                                                     |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `web`            | `ui`, `shared`                                                                                                                    |
+| `api`            | `database`, `shared`, `document-parser`, `claim-extractor`, `citation-engine`, `publication-retriever`                            |
+| `worker`         | `database`, `shared`, `document-parser`, `citation-engine`, `verification-engine`                                                 |
+| engines / parser | `shared`; `citation-engine` also reuses `document-parser` and `claim-extractor`; `publication-retriever` reuses `citation-engine` |
 
 The frontend never touches the database or the processing engines. Heavy processing (citation and verification engines) lives in the worker. The API calls only the document parser, which runs quickly and synchronously.
 

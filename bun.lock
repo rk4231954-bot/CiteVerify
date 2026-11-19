@@ -15,8 +15,11 @@
       "name": "@citeverify/api",
       "version": "0.0.0",
       "dependencies": {
+        "@citeverify/citation-engine": "workspace:*",
+        "@citeverify/claim-extractor": "workspace:*",
         "@citeverify/database": "workspace:*",
         "@citeverify/document-parser": "workspace:*",
+        "@citeverify/publication-retriever": "workspace:*",
         "@citeverify/shared": "workspace:*",
         "hono": "^4.13.19",
         "zod": "^4.6.7",
@@ -64,10 +67,26 @@
       "name": "@citeverify/citation-engine",
       "version": "0.0.0",
       "dependencies": {
+        "@citeverify/claim-extractor": "workspace:*",
+        "@citeverify/document-parser": "workspace:*",
         "@citeverify/shared": "workspace:*",
+        "zod": "^4.6.7",
       },
       "devDependencies": {
         "@citeverify/config": "workspace:*",
+        "@types/bun": "^1.4.4",
+      },
+    },
+    "packages/claim-extractor": {
+      "name": "@citeverify/claim-extractor",
+      "version": "0.0.0",
+      "dependencies": {
+        "@citeverify/shared": "workspace:*",
+        "zod": "^4.6.7",
+      },
+      "devDependencies": {
+        "@citeverify/config": "workspace:*",
+        "@citeverify/document-parser": "workspace:*",
         "@types/bun": "^1.4.4",
       },
     },
@@ -97,6 +116,19 @@
         "jszip": "^3.10.2",
         "mammoth": "^1.13.0",
         "pdfjs-dist": "^6.5.438",
+        "zod": "^4.6.7",
+      },
+      "devDependencies": {
+        "@citeverify/config": "workspace:*",
+        "@types/bun": "^1.4.4",
+      },
+    },
+    "packages/publication-retriever": {
+      "name": "@citeverify/publication-retriever",
+      "version": "0.0.0",
+      "dependencies": {
+        "@citeverify/citation-engine": "workspace:*",
+        "@citeverify/shared": "workspace:*",
         "zod": "^4.6.7",
       },
       "devDependencies": {
@@ -166,11 +198,15 @@
 
     "@citeverify/citation-engine": ["@citeverify/citation-engine@workspace:packages/citation-engine"],
 
+    "@citeverify/claim-extractor": ["@citeverify/claim-extractor@workspace:packages/claim-extractor"],
+
     "@citeverify/config": ["@citeverify/config@workspace:packages/config"],
 
     "@citeverify/database": ["@citeverify/database@workspace:packages/database"],
 
     "@citeverify/document-parser": ["@citeverify/document-parser@workspace:packages/document-parser"],
+
+    "@citeverify/publication-retriever": ["@citeverify/publication-retriever@workspace:packages/publication-retriever"],
 
     "@citeverify/shared": ["@citeverify/shared@workspace:packages/shared"],
 

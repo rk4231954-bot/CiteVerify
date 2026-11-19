@@ -137,6 +137,9 @@ async function main() {
         citationType: CitationType.NUMERIC,
         pageNumber,
         referenceId,
+        citationKey: text.replace(/[[\]]/g, ""),
+        matchStatus: "MATCHED",
+        matchConfidence: 1,
       },
     });
   const [cit1, cit2, cit3] = await Promise.all([
@@ -159,7 +162,16 @@ async function main() {
         pageNumber,
         section: "Introduction",
         confidence: 0.9,
-        citations: { connect: citationIds.map((id) => ({ id })) },
+        category: "SCIENTIFIC_FACT",
+        extractionMethod: "MANUAL", // hand-written synthetic seed claim
+        citationLinks: {
+          create: citationIds.map((citationId) => ({
+            citationId,
+            status: "LINKED",
+            confidence: 1,
+            reason: "synthetic seed link",
+          })),
+        },
       },
     });
   const claim1 = await claim(

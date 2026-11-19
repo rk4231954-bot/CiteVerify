@@ -44,3 +44,12 @@ afterAll(async () => {
   await prisma.$disconnect();
   rmSync(tmp, { recursive: true, force: true });
 });
+
+// No test may reach a real service (Crossref, OpenAlex, …): providers are mocked.
+globalThis.fetch = Object.assign(
+  async (input: string | URL | Request) => {
+    const url = input instanceof Request ? input.url : String(input);
+    throw new TypeError(`network access is disabled in tests (${url})`);
+  },
+  { preconnect: () => {} },
+) as typeof fetch;
