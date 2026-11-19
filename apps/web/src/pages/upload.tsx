@@ -106,6 +106,7 @@ export function UploadPage() {
     <>
       <PageHeader
         eyebrow="Upload"
+        icon="upload"
         title="Upload a document"
         description="Add a manuscript to verify. After the upload, run the processing journey — every stage reflects the API's stored state."
       />

@@ -20,32 +20,46 @@ export function PageHeader({
   title,
   description,
   eyebrow,
+  icon,
   actions,
   children,
 }: {
   title: ReactNode;
   description?: ReactNode;
   eyebrow?: ReactNode;
+  /** Optional glyph shown in a tile beside the title. */
+  icon?: IconName;
   actions?: ReactNode;
   children?: ReactNode;
 }) {
   return (
-    <header className="mb-7">
+    <header className="mb-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div className="min-w-0">
-          {eyebrow ? (
-            <div className="mb-1.5 font-medium text-[11.5px] text-subtle uppercase tracking-[0.1em]">
-              {eyebrow}
-            </div>
+        <div className="flex min-w-0 items-start gap-3.5">
+          {icon ? (
+            <span className="mt-0.5 hidden sm:block">
+              <IconTile icon={icon} tone="primary" size="lg" />
+            </span>
           ) : null}
-          <h1 className="font-semibold text-[22px] text-ink leading-tight tracking-[-0.02em] md:text-[24px]">
-            {title}
-          </h1>
-          {description ? (
-            <p className="mt-1.5 max-w-2xl text-[13px] text-muted leading-relaxed">
-              {description}
-            </p>
-          ) : null}
+          <div className="min-w-0">
+            {eyebrow ? (
+              <div className="mb-2 inline-flex items-center gap-1.5 font-medium text-[11px] text-ink-soft uppercase tracking-[0.12em]">
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-[linear-gradient(135deg,#8aa9ff,#a993ff)] shadow-[0_0_8px_rgb(138_169_255/0.7)]"
+                  aria-hidden="true"
+                />
+                {eyebrow}
+              </div>
+            ) : null}
+            <h1 className="text-balance font-semibold text-[22px] text-ink leading-tight tracking-[-0.025em] md:text-[26px]">
+              {title}
+            </h1>
+            {description ? (
+              <p className="mt-2 max-w-2xl text-pretty text-[13.5px] text-muted leading-relaxed">
+                {description}
+              </p>
+            ) : null}
+          </div>
         </div>
         {actions ? (
           <div className="flex flex-wrap items-center gap-2">{actions}</div>
@@ -137,11 +151,11 @@ export function ConfidenceMeter({
   const v = Math.max(0, Math.min(100, Math.round(value)));
   const fill =
     v >= 75
-      ? "bg-ink-soft"
+      ? "bg-[linear-gradient(90deg,#8aa9ff,#e2e2e7)]"
       : v >= 50
-        ? "bg-[#8aa9ff]"
+        ? "bg-[linear-gradient(90deg,#5b86ff,#8aa9ff)]"
         : v >= 25
-          ? "bg-[#5b86ff]"
+          ? "bg-[linear-gradient(90deg,#3a5596,#5b86ff)]"
           : "bg-[#3a5596]";
   return (
     <span
@@ -153,7 +167,10 @@ export function ConfidenceMeter({
         aria-hidden="true"
       >
         <span
-          className={cn("absolute inset-y-0 left-0 rounded-full", fill)}
+          className={cn(
+            "absolute inset-y-0 left-0 origin-left animate-grow-x rounded-full",
+            fill,
+          )}
           style={{ width: `${v}%` }}
         />
       </span>
@@ -246,11 +263,18 @@ export function SectionLabel({
 
 export function KeyValue({
   items,
+  className,
 }: {
   items: Array<{ label: string; value: ReactNode }>;
+  className?: string;
 }) {
   return (
-    <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2">
+    <dl
+      className={cn(
+        "grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2",
+        className,
+      )}
+    >
       {items.map((it) => (
         <div key={it.label} className="min-w-0">
           <dt className="text-[12px] text-subtle">{it.label}</dt>

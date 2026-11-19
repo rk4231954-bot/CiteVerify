@@ -10,7 +10,17 @@ import { ResultPassage } from "./evidence.tsx";
 export function VerdictSummary({ result }: { result: VerificationResult }) {
   const meta = verdictMeta(result.verdict);
   return (
-    <div className="rounded-lg border border-line bg-paper/60 p-4">
+    <div
+      className="gloss relative overflow-hidden rounded-[10px] border border-line bg-surface p-4 pl-5 shadow-card"
+      style={{
+        backgroundImage: `linear-gradient(90deg, ${meta.color}14, transparent 55%)`,
+      }}
+    >
+      <span
+        className="absolute inset-y-0 left-0 w-[3px]"
+        style={{ background: meta.color }}
+        aria-hidden="true"
+      />
       <div className="flex flex-wrap items-center gap-2">
         <VerdictBadge verdict={result.verdict} />
         <Badge tone="dark">Automated assessment</Badge>

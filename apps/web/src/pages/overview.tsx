@@ -280,6 +280,7 @@ export function OverviewPage() {
           <RecentDocuments data={data} activity={derived?.recent} />
           <div className="border-line border-t" />
           <RecentVerification data={data} />
+          <NetworkTeaser data={data} />
         </aside>
       </div>
 
@@ -861,6 +862,92 @@ function RecentVerification({ data }: { data: Workspace | undefined }) {
         </Timeline>
       )}
     </Panel>
+  );
+}
+
+/** Entry card to the citation network for the latest mapped document. */
+function NetworkTeaser({ data }: { data: Workspace | undefined }) {
+  const doc = (data?.docs ?? [])
+    .filter((d) => d.document.counts.claims > 0)
+    .sort((a, b) =>
+      (b.verification?.job?.completedAt ?? b.document.createdAt).localeCompare(
+        a.verification?.job?.completedAt ?? a.document.createdAt,
+      ),
+    )[0];
+  if (!doc) return null;
+  const c = doc.document.counts;
+  return (
+    <Link
+      to={`/network?doc=${doc.document.id}`}
+      className="group block"
+      aria-label={`Open the citation network for ${doc.document.title}`}
+    >
+      <Card interactive className="overflow-hidden">
+        <svg
+          viewBox="0 0 300 74"
+          className="block h-[74px] w-full border-line border-b bg-[#0c0c0e]"
+          aria-hidden="true"
+        >
+          {(
+            [
+              [24, 20, 104, 30],
+              [24, 50, 104, 30],
+              [24, 50, 104, 56],
+              [116, 30, 196, 22],
+              [116, 56, 196, 50],
+              [208, 22, 276, 37],
+              [208, 50, 276, 37],
+            ] as Array<[number, number, number, number]>
+          ).map(([x1, y1, x2, y2]) => (
+            <path
+              key={`${x1}${y1}${x2}${y2}`}
+              d={`M${x1},${y1} C${(x1 + x2) / 2},${y1} ${(x1 + x2) / 2},${y2} ${x2},${y2}`}
+              fill="none"
+              stroke="#5b86ff"
+              strokeOpacity="0.55"
+              strokeWidth="1.2"
+              strokeDasharray="3 9"
+              className="animate-dash-flow"
+            />
+          ))}
+          {[
+            [18, 20, "#6f95f5"],
+            [18, 50, "#6f95f5"],
+            [110, 30, "#a993ff"],
+            [110, 56, "#a993ff"],
+            [202, 22, "#3fb6a8"],
+            [202, 50, "#3fb6a8"],
+            [282, 37, "#ededef"],
+          ].map(([x, y, fill]) => (
+            <circle
+              key={`${x}-${y}`}
+              cx={x as number}
+              cy={y as number}
+              r="5"
+              fill={fill as string}
+              className="transition-transform duration-300 group-hover:scale-110"
+              style={{ transformOrigin: `${x}px ${y}px` }}
+            />
+          ))}
+        </svg>
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5 font-medium text-[13px] text-ink">
+              Citation network
+            </div>
+            <div className="mt-0.5 truncate text-[12px] text-muted">
+              {plural(c.claims, "claim")} · {plural(c.citations, "citation")} ·{" "}
+              {doc.document.title}
+            </div>
+          </div>
+          <Icon
+            name="arrowRight"
+            size={15}
+            className="shrink-0 text-subtle transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-ink"
+          />
+        </div>
+      </Card>
+    </Link>
   );
 }
 

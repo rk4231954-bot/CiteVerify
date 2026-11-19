@@ -26,18 +26,21 @@ export function Highlighted({
 
 const ROLE_STYLE = {
   SUPPORTING: {
+    tint: "bg-[linear-gradient(90deg,rgb(47_179_92/0.07),transparent_45%)]",
     bar: "bg-success-600",
     label: "Supporting",
     tone: "success" as const,
     icon: "checkCircle" as const,
   },
   CONTRADICTING: {
+    tint: "bg-[linear-gradient(90deg,rgb(239_83_80/0.08),transparent_45%)]",
     bar: "bg-danger-600",
     label: "Contradicting",
     tone: "danger" as const,
     icon: "x" as const,
   },
   CONTEXT: {
+    tint: "",
     bar: "bg-navy-300",
     label: "Context",
     tone: "neutral" as const,
@@ -57,7 +60,12 @@ export function ResultPassage({
 }) {
   const role = ROLE_STYLE[evidence.role] ?? ROLE_STYLE.CONTEXT;
   return (
-    <figure className="relative overflow-hidden rounded-md border border-line bg-surface pl-4">
+    <figure
+      className={cn(
+        "relative overflow-hidden rounded-[9px] border border-line bg-surface pl-4 shadow-card transition-[border-color,box-shadow] duration-200 hover:border-line-strong hover:shadow-raised",
+        role.tint,
+      )}
+    >
       <span
         className={cn("absolute inset-y-0 left-0 w-[3px]", role.bar)}
         aria-hidden="true"
@@ -91,8 +99,14 @@ export function ResultPassage({
             </Badge>
           ))}
         </div>
-        <blockquote className="text-[13.5px] text-ink leading-relaxed">
-          “<Highlighted text={evidence.sourceText} terms={terms} />”
+        <blockquote className="relative pl-4 text-[13.5px] text-ink leading-relaxed">
+          <span
+            className="absolute -top-1 left-0 font-semibold text-[22px] text-subtle leading-none"
+            aria-hidden="true"
+          >
+            “
+          </span>
+          <Highlighted text={evidence.sourceText} terms={terms} />
         </blockquote>
         <figcaption className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11.5px] text-muted">
           {publicationTitle ? (

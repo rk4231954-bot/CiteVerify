@@ -32,7 +32,8 @@ function RailItem({
             )
           : listItemClass(
               cn(
-                "py-2",
+                "relative py-2 before:absolute before:top-2.5 before:bottom-2.5 before:-left-px before:w-[2px] before:rounded-full before:bg-[#8aa9ff] before:opacity-0 before:shadow-[0_0_10px_rgb(138_169_255/0.9)] before:transition-opacity before:duration-200",
+                isActive && "before:opacity-100",
                 isActive &&
                   "border-white/[0.16] bg-[#1d1d21] shadow-raised hover:border-white/[0.2] hover:bg-[#1f1f23]",
               ),
@@ -57,7 +58,18 @@ function RailItem({
                 tone={isActive ? "primary" : "neutral"}
               />
             }
-            title={item.label}
+            title={
+              item.badge ? (
+                <span className="flex items-center gap-1.5">
+                  <span className="truncate">{item.label}</span>
+                  <span className="shrink-0 rounded-[4px] border border-[#8b6cff]/30 bg-[#8b6cff]/[0.12] px-1 py-px font-mono text-[9.5px] text-[#c4b5ff] uppercase tracking-[0.04em]">
+                    {item.badge}
+                  </span>
+                </span>
+              ) : (
+                item.label
+              )
+            }
             subtitle={item.description}
             trailing={
               isActive ? (

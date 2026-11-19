@@ -75,6 +75,7 @@ export function ClaimsCitationsPage() {
     <>
       <PageHeader
         eyebrow="Data"
+        icon="claims"
         title="Claims & Citations"
         description="Every extracted claim, in-text citation and retrieved publication across your documents."
       />

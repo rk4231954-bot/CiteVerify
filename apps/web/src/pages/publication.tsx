@@ -89,6 +89,7 @@ export function PublicationPage() {
     <>
       <PageHeader
         eyebrow="Publication"
+        icon="book"
         title={p ? p.title : <Skeleton className="h-9 w-[32rem] max-w-full" />}
         description={
           p

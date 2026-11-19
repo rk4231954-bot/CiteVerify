@@ -57,6 +57,7 @@ export function SettingsPage() {
     <>
       <PageHeader
         eyebrow="Settings"
+        icon="settings"
         title="Account & system"
         description="Your account and the capabilities this CiteVerify server reports."
       />

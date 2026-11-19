@@ -62,6 +62,7 @@ export function ReportsPage() {
     <>
       <PageHeader
         eyebrow="Reports"
+        icon="reports"
         title="Verification reports"
         description="One report per verified document, built from its latest completed verification run."
       />
@@ -205,6 +206,7 @@ export function ReportPage() {
     <>
       <PageHeader
         eyebrow="Verification report"
+        icon="reports"
         title={
           doc.data ? (
             doc.data.title

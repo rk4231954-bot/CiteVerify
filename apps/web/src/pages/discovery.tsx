@@ -59,6 +59,7 @@ export function DiscoveryPage() {
     <>
       <PageHeader
         eyebrow="Research discovery"
+        icon="discovery"
         title="Your cited literature"
         description="Every publication retrieved for the reference lists of your documents, with its abstract and where you cite it."
       />

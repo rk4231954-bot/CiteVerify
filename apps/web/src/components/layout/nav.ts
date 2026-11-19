@@ -6,6 +6,8 @@ export interface NavItem {
   icon: IconName;
   end?: boolean;
   description: string;
+  /** Short tag shown beside the label in the navigation rail. */
+  badge?: string;
 }
 
 export const NAV_MAIN: NavItem[] = [
@@ -41,6 +43,13 @@ export const NAV_MAIN: NavItem[] = [
     description: "Automated verdicts",
   },
   {
+    to: "/network",
+    label: "Citation Network",
+    icon: "graph",
+    description: "Claim → citation → evidence graph",
+    badge: "Graph",
+  },
+  {
     to: "/discovery",
     label: "Research Discovery",
     icon: "discovery",
@@ -69,7 +78,7 @@ const byPath = (to: string): NavItem => {
   return item;
 };
 
-/** Grouping used by the right-hand navigation rail. */
+/** Grouping used by the navigation rail. */
 export const NAV_SECTIONS: Array<{ title: string; items: NavItem[] }> = [
   {
     title: "Workspace",
@@ -77,7 +86,13 @@ export const NAV_SECTIONS: Array<{ title: string; items: NavItem[] }> = [
   },
   {
     title: "Analysis",
-    items: ["/claims", "/verification", "/discovery", "/reports"].map(byPath),
+    items: [
+      "/claims",
+      "/network",
+      "/verification",
+      "/discovery",
+      "/reports",
+    ].map(byPath),
   },
   { title: "Account", items: ["/settings"].map(byPath) },
 ];

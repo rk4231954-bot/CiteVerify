@@ -26,6 +26,9 @@ const ClaimsCitationsPage = lazy(() =>
 const DiscoveryPage = lazy(() =>
   import("./pages/discovery.tsx").then((m) => ({ default: m.DiscoveryPage })),
 );
+const NetworkPage = lazy(() =>
+  import("./pages/network.tsx").then((m) => ({ default: m.NetworkPage })),
+);
 const DocumentPage = lazy(() =>
   import("./pages/document.tsx").then((m) => ({ default: m.DocumentPage })),
 );
@@ -166,6 +169,11 @@ export const router = createBrowserRouter([
             path: "verification",
             element: <VerificationPage />,
             handle: crumb("Verification Results"),
+          },
+          {
+            path: "network",
+            element: <NetworkPage />,
+            handle: crumb("Citation Network"),
           },
           {
             path: "discovery",

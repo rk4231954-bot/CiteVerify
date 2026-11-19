@@ -103,6 +103,7 @@ export function DocumentPage() {
     <>
       <PageHeader
         eyebrow="Document analysis"
+        icon="documents"
         title={d ? d.title : <Skeleton className="h-9 w-96 max-w-full" />}
         description={
           d ? (
@@ -127,6 +128,14 @@ export function DocumentPage() {
               >
                 Delete
               </Button>
+              {d.counts.claims > 0 ? (
+                <Link
+                  to={`/network?doc=${d.id}`}
+                  className={buttonClass("secondary")}
+                >
+                  <Icon name="graph" size={16} /> Citation network
+                </Link>
+              ) : null}
               {verified ? (
                 <Link
                   to={`/reports/${d.id}`}
@@ -161,7 +170,7 @@ export function DocumentPage() {
           { key: "claims", label: "Claims", count: d?.counts.claims },
           { key: "citations", label: "Citations", count: d?.counts.citations },
           { key: "publications", label: "Publications" },
-          { key: "relationships", label: "Relationships" },
+          { key: "relationships", label: "Citation network" },
           {
             key: "verification",
             label: "Verification",
@@ -231,7 +240,7 @@ function Expandable({
     <details
       open={defaultOpen}
       className={cn(
-        "group rounded-md border border-line bg-surface open:shadow-card",
+        "group rounded-[9px] border border-line bg-surface transition-[border-color,box-shadow,background-color] duration-200 hover:border-line-strong open:border-line-strong open:shadow-raised",
         className,
       )}
     >
@@ -243,7 +252,9 @@ function Expandable({
         />
         <div className="min-w-0 flex-1">{summary}</div>
       </summary>
-      <div className="border-line border-t px-4 py-3">{children}</div>
+      <div className="animate-fade-up border-line border-t px-4 py-3">
+        {children}
+      </div>
     </details>
   );
 }

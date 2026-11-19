@@ -77,6 +77,7 @@ export function DocumentsPage() {
     <>
       <PageHeader
         eyebrow="Library"
+        icon="documents"
         title="My Documents"
         description="Every manuscript you have uploaded, with its extraction, claims, citations and latest verification."
         actions={

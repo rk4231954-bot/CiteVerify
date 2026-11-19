@@ -82,6 +82,7 @@ export function VerificationPage() {
     <>
       <PageHeader
         eyebrow="Verification results"
+        icon="verification"
         title="Automated citation assessments"
         description="How well each cited source appears to support the claim it is cited for, based on the text that was available. These are automated assessments to guide review — not established fact."
       />
