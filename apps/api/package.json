@@ -16,8 +16,10 @@
     "@citeverify/claim-extractor": "workspace:*",
     "@citeverify/database": "workspace:*",
     "@citeverify/document-parser": "workspace:*",
+    "@citeverify/evidence-extractor": "workspace:*",
     "@citeverify/publication-retriever": "workspace:*",
     "@citeverify/shared": "workspace:*",
+    "@citeverify/verification-engine": "workspace:*",
     "hono": "^4.13.19",
     "zod": "^4.6.7"
   },

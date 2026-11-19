@@ -7,14 +7,18 @@ import {
   ClaimCitationStatus,
   ClaimExtractionMethod,
   DocumentStatus,
+  EvidenceAvailability,
+  EvidenceExtractionMethod,
   EvidenceType,
   ExtractionStatus,
+  FullTextStatus,
   JobStage,
   JobStatus,
   PublicationMatchStatus,
   PublicationProvider,
   RetrievalStatus,
   Verdict,
+  VerificationScope,
 } from "./constants.ts";
 
 const values = <T extends Record<string, string>>(o: T) =>
@@ -43,3 +47,10 @@ export const publicationMatchStatusSchema = z.enum(
   values(PublicationMatchStatus),
 );
 export const publicationProviderSchema = z.enum(values(PublicationProvider));
+
+export const evidenceAvailabilitySchema = z.enum(values(EvidenceAvailability));
+export const evidenceExtractionMethodSchema = z.enum(
+  values(EvidenceExtractionMethod),
+);
+export const verificationScopeSchema = z.enum(values(VerificationScope));
+export const fullTextStatusSchema = z.enum(values(FullTextStatus));

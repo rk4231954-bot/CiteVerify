@@ -20,19 +20,20 @@ packages/
   claim-extractor/        Scientific claim extraction             (api, worker)
   citation-engine/        Citation detection + reference matching (api, worker)
   publication-retriever/  Publication metadata (Crossref, OpenAlex) (api, worker)
-  verification-engine/    Claim-vs-source verification            (worker only)
+  evidence-extractor/     Evidence passages + claim relevance ranking (api, worker)
+  verification-engine/    Claim-vs-evidence verdicts (explainable) (api, worker)
 ```
 
 Dependency rules:
 
-| Workspace        | May depend on                                                                                                                     |
-| ---------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `web`            | `ui`, `shared`                                                                                                                    |
-| `api`            | `database`, `shared`, `document-parser`, `claim-extractor`, `citation-engine`, `publication-retriever`                            |
-| `worker`         | `database`, `shared`, `document-parser`, `citation-engine`, `verification-engine`                                                 |
-| engines / parser | `shared`; `citation-engine` also reuses `document-parser` and `claim-extractor`; `publication-retriever` reuses `citation-engine` |
+| Workspace        | May depend on                                                                                                                                                                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `web`            | `ui`, `shared`                                                                                                                                                                                                                                   |
+| `api`            | `database`, `shared`, `document-parser`, `claim-extractor`, `citation-engine`, `publication-retriever`, `evidence-extractor`, `verification-engine`                                                                                              |
+| `worker`         | `database`, `shared`, `document-parser`, `citation-engine`, `verification-engine`                                                                                                                                                                |
+| engines / parser | `shared`; `citation-engine` also reuses `document-parser` and `claim-extractor`; `publication-retriever` reuses `citation-engine`; `evidence-extractor` reuses all four; `verification-engine` reuses `evidence-extractor` and `claim-extractor` |
 
-The frontend never touches the database or the processing engines. Heavy processing (citation and verification engines) lives in the worker. The API calls only the document parser, which runs quickly and synchronously.
+The frontend never touches the database or the processing engines. The engines are pure packages with no database access: the API currently runs each stage synchronously (parsing, claims, citations, publications, evidence, verification) and records verification runs as `VerificationJob` rows, so they can move to the worker without changing the engines.
 
 Internal packages export TypeScript source directly (`"exports": "./src/index.ts"`), so they have no build step.
 
@@ -73,4 +74,4 @@ To run a single app: `bunx turbo run dev --filter=@citeverify/api`
 
 ## Environment
 
-See `.env.example`. API details: [`apps/api/README.md`](apps/api/README.md). A relative SQLite `DATABASE_URL` (e.g. `file:./dev.db`) always resolves inside `packages/database/`, whichever app is running. Database details: [`packages/database/README.md`](packages/database/README.md).
+See `.env.example`. API details: [`apps/api/README.md`](apps/api/README.md). Web app details: [`apps/web/README.md`](apps/web/README.md). A relative SQLite `DATABASE_URL` (e.g. `file:./dev.db`) always resolves inside `packages/database/`, whichever app is running. Database details: [`packages/database/README.md`](packages/database/README.md).

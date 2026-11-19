@@ -44,6 +44,22 @@ const envSchema = z.object({
     .min(1000)
     .max(60_000)
     .default(10_000),
+  // Evidence extraction: legally accessible (open-access) full-text PDFs only.
+  EVIDENCE_FULLTEXT_ENABLED: z
+    .enum(["true", "false"])
+    .default("true")
+    .transform((v) => v === "true"),
+  EVIDENCE_FULLTEXT_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1000)
+    .max(120_000)
+    .default(20_000),
+  EVIDENCE_FULLTEXT_MAX_BYTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(15 * 1024 * 1024),
 });
 
 function loadEnv() {

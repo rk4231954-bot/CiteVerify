@@ -8,17 +8,21 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "biome lint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@citeverify/shared": "workspace:*",
     "@citeverify/ui": "workspace:*",
     "react": "^19.3.1",
-    "react-dom": "^19.3.1"
+    "react-dom": "^19.3.1",
+    "react-router": "^8.5.2",
+    "recharts": "^3.11.0"
   },
   "devDependencies": {
     "@citeverify/config": "workspace:*",
     "@tailwindcss/vite": "^4.3.5",
+    "@types/bun": "^1.4.4",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.3.0",

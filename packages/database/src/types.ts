@@ -4,6 +4,7 @@ import type { Prisma } from "./generated/prisma/client.ts";
 export type {
   CitationType,
   DocumentStatus,
+  EvidenceAvailability,
   EvidenceType,
   JobStage,
   JobStatus,

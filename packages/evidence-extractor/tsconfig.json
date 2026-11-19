@@ -1,0 +1,4 @@
+{
+  "extends": "@citeverify/config/tsconfig/bun.json",
+  "include": ["src", "tests"]
+}

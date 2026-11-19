@@ -11,6 +11,21 @@ describe("GET /api/health", () => {
     });
   });
 
+  test("GET /api/config exposes limits and capabilities, no secrets", async () => {
+    const res = await call("GET", "/config");
+    expect(res.status).toBe(200);
+    expect(res.body).toMatchObject({
+      success: true,
+      data: {
+        upload: { extensions: [".pdf", ".docx"] },
+        features: { aiVerification: false, reportExport: false },
+      },
+    });
+    if (!res.body.success) throw new Error("unreachable");
+    expect(res.body.data.upload.maxBytes).toBeGreaterThan(0);
+    expect(JSON.stringify(res.body.data)).not.toMatch(/secret|password|key/i);
+  });
+
   test("unknown routes return the standard 404 envelope", async () => {
     const res = await call("GET", "/does-not-exist");
     expect(res.status).toBe(404);

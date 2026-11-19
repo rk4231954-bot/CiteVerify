@@ -8,10 +8,14 @@
   },
   "scripts": {
     "lint": "biome lint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
-    "@citeverify/shared": "workspace:*"
+    "@citeverify/claim-extractor": "workspace:*",
+    "@citeverify/evidence-extractor": "workspace:*",
+    "@citeverify/shared": "workspace:*",
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@citeverify/config": "workspace:*",

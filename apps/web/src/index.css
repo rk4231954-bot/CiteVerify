@@ -1,2 +1,202 @@
 @import "tailwindcss";
 @source "../../../packages/ui/src";
+
+/* ───────────────────────── CiteVerify design tokens ───────────────────────── */
+@theme {
+  /* Typography */
+  --font-sans:
+    "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display:
+    "Iowan Old Style", "Charter", "Source Serif Pro", "Palatino Linotype",
+    Georgia, Cambria, "Times New Roman", serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  /* Deep navy (shell, headings) */
+  --color-navy-50: #eef1f8;
+  --color-navy-100: #d9dfee;
+  --color-navy-200: #b3bfdc;
+  --color-navy-300: #8094bf;
+  --color-navy-400: #536a9e;
+  --color-navy-500: #34497c;
+  --color-navy-600: #233660;
+  --color-navy-700: #1a2b52;
+  --color-navy-800: #16274f;
+  --color-navy-900: #0f1d3d;
+  --color-navy-950: #0b1530;
+
+  /* Primary blue */
+  --color-primary-50: #eef3ff;
+  --color-primary-100: #dbe5fe;
+  --color-primary-200: #bccdfd;
+  --color-primary-300: #8eabf9;
+  --color-primary-400: #5f84f3;
+  --color-primary-500: #2f5bea;
+  --color-primary-600: #2449cf;
+  --color-primary-700: #1f3ba6;
+  --color-primary-800: #1d3383;
+
+  /* Accents */
+  --color-electric-400: #60a5fa;
+  --color-electric-500: #3b82f6;
+  --color-accent-50: #f3f0ff;
+  --color-accent-100: #e7e1ff;
+  --color-accent-400: #9b82fd;
+  --color-accent-500: #7c5cfc;
+  --color-accent-600: #6440e6;
+
+  /* Warm neutrals */
+  --color-paper: #f7f6f2;
+  --color-paper-deep: #efede6;
+  --color-surface: #ffffff;
+  --color-line: #e6e4dd;
+  --color-line-strong: #d5d2c8;
+  --color-ink: #0f172a;
+  --color-ink-soft: #2b3346;
+  --color-muted: #5b6478;
+  --color-subtle: #868d9c;
+
+  /* Verdict chart marks — validated (CVD + normal-vision separation) with the dataviz palette
+     validator; always paired with a label + icon. Text uses the darker badge tokens below. */
+  --color-v-supported: #008300;
+  --color-v-partial: #1baf7a;
+  --color-v-unsupported: #2a78d6;
+  --color-v-contradicted: #e34948;
+  --color-v-outdated: #6250d6;
+  --color-v-misleading: #e35a26;
+  --color-v-review: #eda100;
+
+  /* Status (UI text, icons, buttons) — distinct from the verdict chart marks */
+  --color-success-50: #eef7f0;
+  --color-success-600: #17803d;
+  --color-success-700: #0b6b2f;
+  --color-warning-50: #fdf6e3;
+  --color-warning-500: #c48a00;
+  --color-warning-700: #7d5a04;
+  --color-danger-50: #fdf0f0;
+  --color-danger-600: #b42323;
+  --color-danger-700: #911b1b;
+
+  /* Elevation */
+  --shadow-card: 0 1px 0 rgb(15 23 42 / 0.03), 0 1px 2px rgb(15 23 42 / 0.05);
+  --shadow-raised:
+    0 1px 2px rgb(15 23 42 / 0.05), 0 8px 24px -8px rgb(15 23 42 / 0.12);
+  --shadow-overlay:
+    0 24px 64px -16px rgb(11 21 48 / 0.35), 0 2px 6px rgb(11 21 48 / 0.08);
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --animate-fade-up: fade-up 320ms var(--ease-out-soft) both;
+  --animate-fade-in: fade-in 200ms ease-out both;
+  --animate-slide-in-right: slide-in-right 280ms var(--ease-out-soft) both;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes slide-in-right {
+    from {
+      opacity: 0;
+      transform: translateX(24px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  @keyframes shimmer {
+    from {
+      background-position: -200% 0;
+    }
+    to {
+      background-position: 200% 0;
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-paper font-sans text-ink;
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-primary-500) 22%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-primary-500);
+    outline-offset: 2px;
+  }
+  dialog::backdrop {
+    background: rgb(11 21 48 / 0.45);
+    backdrop-filter: blur(2px);
+  }
+  mark {
+    background: color-mix(in srgb, var(--color-electric-400) 28%, transparent);
+    color: inherit;
+    border-radius: 2px;
+    padding: 0 1px;
+  }
+}
+
+@layer components {
+  .skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-paper-deep) 0%,
+      color-mix(in srgb, var(--color-paper-deep) 40%, white) 50%,
+      var(--color-paper-deep) 100%
+    );
+    background-size: 200% 100%;
+    animation: var(--animate-shimmer);
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-line-strong) transparent;
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* biome-ignore-start lint/complexity/noImportantStyles: print and reduced-motion overrides must win. */
+@media print {
+  body {
+    background: white;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+/* biome-ignore-end lint/complexity/noImportantStyles: end */

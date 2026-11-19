@@ -90,6 +90,7 @@ model ExtractedClaim {
 
   document      Document             @relation(fields: [documentId], references: [id], onDelete: Cascade)
   citationLinks ClaimCitation[] // a claim can cite several citations (and vice versa)
+  evidenceLinks ClaimEvidence[] // candidate evidence passages, ranked by relevance
   results       VerificationResult[]
 
   @@unique([documentId, fingerprint])
@@ -180,25 +181,28 @@ model Reference {
 
 /// A source publication, shared across documents that cite it.
 model Publication {
-  id               String    @id @default(cuid())
-  title            String
-  authors          String? // JSON string array
-  year             Int?
-  doi              String?   @unique
-  abstract         String?
-  sourceUrl        String?
-  publisher        String?
-  openAccess       Boolean   @default(false) // true only when a provider reports it as open access
-  retrievalStatus  String    @default("PENDING") // RetrievalStatus
+  id                  String    @id @default(cuid())
+  title               String
+  authors             String? // JSON string array
+  year                Int?
+  doi                 String?   @unique
+  abstract            String?
+  sourceUrl           String?
+  publisher           String?
+  openAccess          Boolean   @default(false) // true only when a provider reports it as open access
+  retrievalStatus     String    @default("PENDING") // RetrievalStatus
   // Retrieved-metadata provenance. Metadata ≠ full text: nothing here implies the text is available.
-  openAlexId       String?   @unique // e.g. "W2741809807"; dedup key when there is no DOI
-  journal          String? // journal / source title
-  provider         String? // PublicationProvider(s) that supplied the metadata, primary first: "CROSSREF,OPENALEX"
-  openAccessStatus String? // as reported by OpenAlex: gold | green | hybrid | bronze | diamond | closed
-  openAccessUrl    String?
-  retrievedAt      DateTime?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  openAlexId          String?   @unique // e.g. "W2741809807"; dedup key when there is no DOI
+  journal             String? // journal / source title
+  provider            String? // PublicationProvider(s) that supplied the metadata, primary first: "CROSSREF,OPENALEX"
+  openAccessStatus    String? // as reported by OpenAlex: gold | green | hybrid | bronze | diamond | closed
+  openAccessUrl       String?
+  retrievedAt         DateTime?
+  // Evidence extraction.
+  fullTextStatus      String? // FullTextStatus of the last attempt to obtain legally accessible full text
+  evidenceExtractedAt DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 
   references Reference[]
   evidence   Evidence[]
@@ -206,31 +210,62 @@ model Publication {
 
 /// A passage from a publication used to judge a claim.
 model Evidence {
-  id            String   @id @default(cuid())
-  publicationId String
-  sourceText    String
-  pageNumber    Int?
-  section       String?
-  evidenceType  String // EvidenceType
-  sourceUrl     String?
-  createdAt     DateTime @default(now())
+  id                   String   @id @default(cuid())
+  publicationId        String
+  sourceText           String // the passage exactly as it appears in the source
+  normalizedText       String? // whitespace/citation-marker normalised; numbers and wording unchanged
+  pageNumber           Int? // only when the source reliably provides it (never for abstracts)
+  section              String? // section heading as written in the source
+  evidenceType         String? // EvidenceType category; null for legacy rows that were never classified
+  evidenceAvailability String // EvidenceAvailability: ABSTRACT | FULL_TEXT | METADATA
+  sourceUrl            String? // where the passage was read from (landing page / open-access PDF)
+  extractionMethod     String? // EvidenceExtractionMethod; null for legacy rows
+  confidence           Float? // 0..1 classification confidence — NOT scientific truth
+  details              String? // JSON: verbatim sample sizes, statistics, design terms, source offsets
+  position             Int? // reading order within the publication's content
+  fingerprint          String? // case/punctuation-insensitive key for duplicate prevention
+  createdAt            DateTime @default(now())
 
-  publication Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  publication       Publication            @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  claimLinks        ClaimEvidence[]
+  verificationLinks VerificationEvidence[] // snapshots keep their text if this row is deleted
 
+  @@unique([publicationId, fingerprint])
   @@index([publicationId])
+}
+
+/// Candidate evidence for a claim, ranked by RELEVANCE (topical overlap). Not a verdict.
+model ClaimEvidence {
+  claimId        String
+  evidenceId     String
+  relevanceScore Float // 0..1 lexical relevance — says nothing about support or contradiction
+  rank           Int // 1 = most relevant for this claim
+  matchedTerms   String? // JSON: shared terms / numbers and the score breakdown
+  method         String // how the link was found, e.g. "LEXICAL"
+  createdAt      DateTime @default(now())
+
+  claim    ExtractedClaim @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  evidence Evidence       @relation(fields: [evidenceId], references: [id], onDelete: Cascade)
+
+  @@id([claimId, evidenceId])
+  @@index([evidenceId])
 }
 
 /// One run of the verification pipeline over a document.
 model VerificationJob {
-  id           String    @id @default(cuid())
-  documentId   String
-  status       String    @default("PENDING") // JobStatus
-  currentStage String? // JobStage
-  errorMessage String?
-  startedAt    DateTime?
-  completedAt  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id              String    @id @default(cuid())
+  documentId      String
+  status          String    @default("PENDING") // JobStatus
+  currentStage    String? // JobStage
+  errorMessage    String?
+  // Verification-engine run metadata (nullable: legacy/seed jobs need no invented values).
+  method          String? // VerificationMethod: RULE_BASED | AI
+  totalClaims     Int?
+  processedClaims Int?
+  startedAt       DateTime?
+  completedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   document Document             @relation(fields: [documentId], references: [id], onDelete: Cascade)
   results  VerificationResult[]
@@ -247,16 +282,52 @@ model VerificationResult {
   verificationJobId   String
   verdict             String // Verdict
   explanation         String
-  confidence          Float // 0..1
+  confidence          Float // 0..1 confidence in the AUTOMATED assessment (API reports 0–100)
   evidenceSummary     String?
   humanReviewRequired Boolean  @default(false)
+  // Verification-engine output (nullable: legacy/seed rows need no invented values).
+  reasonCode          String? // which conservative rule produced the verdict
+  evidenceSource      String? // FULL_TEXT | ABSTRACT | MIXED | NONE — what the verdict rests on
+  verificationScope   String? // VerificationScope of the cited content
+  limitations         String? // JSON string array
+  details             String? // JSON: publications, unresolved citations, review reasons, rules applied
+  method              String? // VerificationMethod: RULE_BASED | AI
   createdAt           DateTime @default(now())
 
-  claim ExtractedClaim  @relation(fields: [claimId], references: [id], onDelete: Cascade)
-  job   VerificationJob @relation(fields: [verificationJobId], references: [id], onDelete: Cascade)
+  claim    ExtractedClaim         @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  job      VerificationJob        @relation(fields: [verificationJobId], references: [id], onDelete: Cascade)
+  evidence VerificationEvidence[]
 
   @@unique([claimId, verificationJobId]) // one verdict per claim per run
   @@index([verificationJobId])
+}
+
+/// An evidence passage used by one verification result, with its role. The text
+/// and source reference are SNAPSHOTS, so a result stays explainable even if the
+/// Evidence row is later re-extracted (evidenceId is then set to null).
+model VerificationEvidence {
+  id                   String   @id @default(cuid())
+  resultId             String
+  evidenceId           String?
+  publicationId        String // snapshot (no FK): the publication the passage came from
+  role                 String // SUPPORTING | CONTRADICTING | CONTEXT | LIMITATION
+  stance               String // AGREES | PARTIAL | DISAGREES | NEUTRAL
+  relevanceScore       Float? // 0..1 topical relevance — NOT support
+  rationale            String? // JSON: { flags, rationale }
+  sourceText           String // verbatim passage
+  evidenceType         String?
+  evidenceAvailability String // ABSTRACT | FULL_TEXT
+  section              String?
+  pageNumber           Int?
+  sourceUrl            String?
+  position             Int // order within the result
+  createdAt            DateTime @default(now())
+
+  result   VerificationResult @relation(fields: [resultId], references: [id], onDelete: Cascade)
+  evidence Evidence?          @relation(fields: [evidenceId], references: [id], onDelete: SetNull)
+
+  @@index([resultId])
+  @@index([evidenceId])
 }
 
 /// Final report for one verification run of a document.

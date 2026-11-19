@@ -65,12 +65,72 @@ export const CitationType = {
 export type CitationType = (typeof CitationType)[keyof typeof CitationType];
 
 /** Which part of a publication an evidence passage came from. */
+/** What kind of scientific information an evidence passage carries. */
 export const EvidenceType = {
+  /** A finding stated in an abstract. */
+  ABSTRACT_FINDING: "ABSTRACT_FINDING",
+  /** An observed outcome reported in a results section. */
+  EXPERIMENTAL_RESULT: "EXPERIMENTAL_RESULT",
+  /** A result carrying statistics (p-values, CIs, effect sizes, mean ± SD…). */
+  STATISTICAL_RESULT: "STATISTICAL_RESULT",
+  METHODOLOGY: "METHODOLOGY",
+  /** The authors' interpretation of their own results. */
+  DISCUSSION: "DISCUSSION",
+  LIMITATION: "LIMITATION",
+  CONCLUSION: "CONCLUSION",
+} as const;
+export type EvidenceType = (typeof EvidenceType)[keyof typeof EvidenceType];
+
+/** Which content an evidence passage was taken from. */
+export const EvidenceAvailability = {
+  /** Only the abstract was available: verification scope is limited. */
   ABSTRACT: "ABSTRACT",
+  /** Legally accessible (open-access) full text. */
   FULL_TEXT: "FULL_TEXT",
   METADATA: "METADATA",
 } as const;
-export type EvidenceType = (typeof EvidenceType)[keyof typeof EvidenceType];
+export type EvidenceAvailability =
+  (typeof EvidenceAvailability)[keyof typeof EvidenceAvailability];
+
+export const EvidenceExtractionMethod = {
+  RULE_BASED: "RULE_BASED",
+  AI: "AI",
+  MANUAL: "MANUAL",
+} as const;
+export type EvidenceExtractionMethod =
+  (typeof EvidenceExtractionMethod)[keyof typeof EvidenceExtractionMethod];
+
+/** How much of a publication the extracted evidence covers. */
+export const VerificationScope = {
+  /** Full text was processed. */
+  FULL: "FULL",
+  /** Abstract only — results, methods and limitations may be missing. */
+  LIMITED: "LIMITED",
+  /** No content was available. */
+  NONE: "NONE",
+} as const;
+export type VerificationScope =
+  (typeof VerificationScope)[keyof typeof VerificationScope];
+
+/** Outcome of trying to obtain a publication's legally accessible full text. */
+export const FullTextStatus = {
+  AVAILABLE: "AVAILABLE",
+  /** Not reported as open access: never fetched (no paywall bypassing). */
+  NOT_OPEN_ACCESS: "NOT_OPEN_ACCESS",
+  NO_URL: "NO_URL",
+  /** The host refused access (401/402/403/451). */
+  ACCESS_DENIED: "ACCESS_DENIED",
+  /** The URL is a landing page or other non-PDF content; it is not scraped. */
+  NOT_PDF: "NOT_PDF",
+  TOO_LARGE: "TOO_LARGE",
+  /** Fetched, but no extractable text (e.g. scanned images). */
+  NO_TEXT: "NO_TEXT",
+  FAILED: "FAILED",
+  /** Full-text retrieval was disabled for this run. */
+  NOT_ATTEMPTED: "NOT_ATTEMPTED",
+} as const;
+export type FullTextStatus =
+  (typeof FullTextStatus)[keyof typeof FullTextStatus];
 
 /** Outcome of document text extraction. */
 export const ExtractionStatus = {

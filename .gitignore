@@ -27,3 +27,8 @@ packages/database/src/generated/
 # uploaded files (keep the directory)
 storage/uploads/*
 !storage/uploads/.gitkeep
+
+# vercel
+.vercel/
+.env*
+!.env.example

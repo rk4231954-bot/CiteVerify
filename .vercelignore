@@ -1,0 +1,16 @@
+# Never upload secrets, local data or build artefacts to Vercel.
+.env
+.env.*
+!.env.example
+*.db
+*.db-journal
+storage/
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.turbo/
+**/.turbo/
+packages/database/src/generated/
+.vercel/
+*.log

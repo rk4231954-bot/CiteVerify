@@ -3,6 +3,7 @@ import * as citations from "../controllers/citation.controller.ts";
 import * as claims from "../controllers/claim.controller.ts";
 import * as documents from "../controllers/document.controller.ts";
 import * as publications from "../controllers/publication.controller.ts";
+import * as verification from "../controllers/verification.controller.ts";
 import { requireAuth } from "../middleware/auth.ts";
 import type { AppEnv } from "../types/index.ts";
 
@@ -21,4 +22,7 @@ export const documentRoutes = new Hono<AppEnv>()
   .get("/:id/references", ...citations.listReferences)
   .post("/:id/retrieve-publications", ...publications.retrieveForDocument)
   .get("/:id/publications", ...publications.listForDocument)
+  .post("/:id/verify", ...verification.verifyDocument)
+  .get("/:id/verification", ...verification.resultsForDocument)
+  .get("/:id/verification/status", ...verification.statusForDocument)
   .delete("/:id", ...documents.remove);
