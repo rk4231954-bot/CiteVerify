@@ -1,5 +1,11 @@
 /** Live connection status of the CiteVerify API (polls GET /api/health). */
-import { API_CONFIGURED, API_ORIGIN, ApiError, api } from "./api.ts";
+import {
+  API_CONFIGURED,
+  API_ORIGIN,
+  API_URL_ERROR,
+  ApiError,
+  api,
+} from "./api.ts";
 import { useQuery } from "./query.ts";
 
 export type BackendState =
@@ -19,8 +25,9 @@ export interface BackendStatus {
 }
 
 const MESSAGES: Record<BackendState, string> = {
-  "not-configured":
-    "This deployment has no API configured. Pages load for preview, but signing in and all data features are unavailable.",
+  "not-configured": API_URL_ERROR
+    ? `This deployment's API URL is invalid: ${API_URL_ERROR}. Pages load for preview, but signing in and all data features are unavailable.`
+    : "This deployment has no API configured. Pages load for preview, but signing in and all data features are unavailable.",
   checking: "Checking the connection to the CiteVerify API…",
   online: "Connected to the CiteVerify API.",
   degraded:
@@ -53,7 +60,9 @@ export function useBackendStatus(): BackendStatus {
       ? `${API_ORIGIN}/api`
       : API_CONFIGURED
         ? "same origin /api (development proxy)"
-        : "not set (VITE_API_BASE_URL)",
+        : API_URL_ERROR
+          ? `invalid (${API_URL_ERROR})`
+          : "not set (VITE_API_BASE_URL)",
     message:
       q.error instanceof ApiError &&
       state !== "not-configured" &&

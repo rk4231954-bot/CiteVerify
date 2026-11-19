@@ -12,7 +12,7 @@ import {
   DocumentCrumb,
   PublicationCrumb,
 } from "./components/layout/breadcrumbs.tsx";
-import { API_BASE, API_CONFIGURED } from "./lib/api.ts";
+import { API_BASE, API_CONFIGURED, API_URL_ERROR } from "./lib/api.ts";
 import { useAuth } from "./lib/auth.tsx";
 import { LoginPage, RegisterPage } from "./pages/auth.tsx";
 import { NotFoundPage } from "./pages/not-found.tsx";
@@ -92,7 +92,9 @@ function RequireAuth() {
           description={
             API_CONFIGURED
               ? `Your session is saved, but ${API_BASE} could not be contacted. Check that the API is running and try again.`
-              : "This build was made without VITE_API_BASE_URL, so it cannot sign you in or load data. Set the variable in the hosting environment and redeploy."
+              : API_URL_ERROR
+                ? `This build has an invalid API URL (${API_URL_ERROR}), so it cannot sign you in or load data. Fix VITE_API_BASE_URL in the hosting environment and redeploy.`
+                : "This build was made without VITE_API_BASE_URL, so it cannot sign you in or load data. Set the variable in the hosting environment and redeploy."
           }
           action={
             <div className="flex flex-wrap justify-center gap-2">

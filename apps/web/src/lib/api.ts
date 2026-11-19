@@ -33,18 +33,57 @@ import type {
  * Production builds never fall back to same-origin `/api`: on a static host
  * that path would be served the SPA's index.html, not the API.
  */
-export function resolveApiOrigin(env: {
-  VITE_API_BASE_URL?: string;
-  VITE_API_URL?: string;
-}): string {
-  return (env.VITE_API_BASE_URL || env.VITE_API_URL || "")
-    .trim()
-    .replace(/\/+$/, "")
-    .replace(/\/api$/, "");
+export function resolveApiOrigin(env: ApiUrlEnv): string {
+  return parseApiBaseUrl(env).origin;
 }
-export const API_ORIGIN = resolveApiOrigin(import.meta.env);
+
+type ApiUrlEnv = { VITE_API_BASE_URL?: string; VITE_API_URL?: string };
+
+/**
+ * Parses the configured API URL into an absolute base (no trailing slash, no
+ * `/api`). A bare host such as `api.example.com` gets `https://` (`http://` for
+ * localhost), because a scheme-less value would otherwise be resolved by the
+ * browser as a path on the frontend's own origin. A value that is not a usable
+ * http(s) URL yields an empty origin plus an `error`.
+ */
+export function parseApiBaseUrl(env: ApiUrlEnv): {
+  origin: string;
+  error?: string;
+} {
+  const raw = (env.VITE_API_BASE_URL || env.VITE_API_URL || "").trim();
+  if (!raw) return { origin: "" };
+  const withScheme = /^[a-z][a-z0-9+.-]*:\/\//i.test(raw)
+    ? raw
+    : `${/^(localhost|127\.0\.0\.1|\[::1\])(:|\/|$)/i.test(raw) ? "http" : "https"}://${raw}`;
+  let url: URL;
+  try {
+    url = new URL(withScheme);
+  } catch {
+    return {
+      origin: "",
+      error: `VITE_API_BASE_URL "${raw}" is not a valid URL`,
+    };
+  }
+  if (url.protocol !== "https:" && url.protocol !== "http:")
+    return {
+      origin: "",
+      error: `VITE_API_BASE_URL "${raw}" must be an http(s) URL`,
+    };
+  if (url.search || url.hash || url.username)
+    return {
+      origin: "",
+      error: `VITE_API_BASE_URL "${raw}" must not contain a query, fragment or credentials`,
+    };
+  const path = url.pathname.replace(/\/+$/, "").replace(/\/api$/, "");
+  return { origin: `${url.origin}${path}` };
+}
+
+const API_URL = parseApiBaseUrl(import.meta.env);
+export const API_ORIGIN = API_URL.origin;
+/** Why the configured API URL was rejected (null when it is valid or unset). */
+export const API_URL_ERROR: string | null = API_URL.error ?? null;
 export const API_BASE = `${API_ORIGIN}/api`;
-/** False when this build has no API to talk to (production without `VITE_API_BASE_URL`). */
+/** False when this build has no API to talk to (production without a valid `VITE_API_BASE_URL`). */
 export const API_CONFIGURED = Boolean(API_ORIGIN) || import.meta.env.DEV;
 
 const TOKEN_KEY = "citeverify.token";
@@ -129,8 +168,7 @@ export function onUnauthorized(listener: () => void): () => void {
 const NETWORK_MESSAGE =
   "Cannot reach the CiteVerify API. Check that the server is running and your connection is online.";
 
-const NOT_CONFIGURED_MESSAGE =
-  "This deployment is not connected to a CiteVerify API (VITE_API_BASE_URL is not set). Pages load, but signing in and all data features are unavailable.";
+const NOT_CONFIGURED_MESSAGE = `This deployment is not connected to a CiteVerify API (${API_URL_ERROR ?? "VITE_API_BASE_URL is not set"}). Pages load, but signing in and all data features are unavailable.`;
 
 const notConfigured = () =>
   new ApiError(0, "API_NOT_CONFIGURED", NOT_CONFIGURED_MESSAGE);
