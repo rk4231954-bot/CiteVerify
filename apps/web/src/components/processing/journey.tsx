@@ -37,7 +37,7 @@ const STATE_STYLE: Record<
 > = {
   complete: {
     icon: "check",
-    dot: "bg-primary-500 text-white border-primary-500",
+    dot: "bg-primary-500 text-white border-primary-500 shadow-[0_0_10px_rgb(79_124_247/0.5)]",
     label: "Complete",
     tone: "success",
   },

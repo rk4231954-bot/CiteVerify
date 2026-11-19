@@ -45,27 +45,29 @@ export function Breadcrumbs() {
   );
   if (crumbs.length === 0) return null;
   return (
-    <nav ref={navRef} aria-label="Breadcrumb" className="min-w-0">
-      <ol className="flex min-w-0 items-center gap-1.5 text-[13px]">
+    <nav ref={navRef} aria-label="Breadcrumb" className="h-11 min-w-0">
+      <ol className="flex h-full min-w-0 items-center gap-2 text-[13px]">
         {crumbs.map((m, i) => {
           const last = i === crumbs.length - 1;
           const label = (m.handle as CrumbHandle).crumb(params);
           return (
             <Fragment key={m.id}>
               {i > 0 ? (
-                <li aria-hidden="true" className="text-line-strong">
+                <li aria-hidden="true" className="hidden text-subtle sm:block">
                   <Icon name="chevronRight" size={14} />
                 </li>
               ) : null}
               <li
                 className={
                   last
-                    ? "min-w-0 truncate font-medium text-ink"
+                    ? "relative flex h-full min-w-0 items-center font-medium text-ink after:absolute after:inset-x-0 after:bottom-[-1px] after:h-0.5 after:rounded-full after:bg-ink"
                     : "hidden shrink-0 text-muted sm:block"
                 }
               >
                 {last ? (
-                  <span aria-current="page">{label}</span>
+                  <span aria-current="page" className="truncate">
+                    {label}
+                  </span>
                 ) : (
                   <Link to={m.pathname} className="hover:text-ink">
                     {label}

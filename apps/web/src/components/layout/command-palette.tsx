@@ -88,7 +88,7 @@ export function CommandPalette({
         if (e.target === e.currentTarget) onClose();
       }}
       aria-label="Search"
-      className="mx-auto mt-[12vh] w-[calc(100%-2rem)] max-w-xl rounded-lg border border-line bg-surface p-0 shadow-overlay open:animate-fade-up"
+      className="gloss mx-auto mt-[12vh] w-[calc(100%-2rem)] max-w-xl rounded-[12px] border border-line-strong bg-surface p-0 text-ink shadow-overlay open:animate-fade-up"
     >
       {open ? (
         <div>
@@ -154,15 +154,15 @@ export function CommandPalette({
                       onKeyDown={(ev) => ev.key === "Enter" && go(e)}
                       className={cn(
                         "flex cursor-pointer items-center gap-3 rounded-md px-3 py-2",
-                        i === active ? "bg-primary-50" : "hover:bg-paper",
+                        i === active
+                          ? "bg-white/[0.07]"
+                          : "hover:bg-white/[0.04]",
                       )}
                     >
                       <Icon
                         name={e.icon}
                         size={16}
-                        className={
-                          i === active ? "text-primary-600" : "text-subtle"
-                        }
+                        className={i === active ? "text-ink" : "text-subtle"}
                       />
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-[13.5px] text-ink">
@@ -176,7 +176,7 @@ export function CommandPalette({
                         <Icon
                           name="arrowRight"
                           size={14}
-                          className="text-primary-500"
+                          className="text-muted"
                         />
                       ) : null}
                     </div>

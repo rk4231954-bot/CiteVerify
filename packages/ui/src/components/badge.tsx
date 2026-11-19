@@ -10,20 +10,23 @@ export type BadgeTone =
   | "danger"
   | "violet"
   | "orange"
+  | "pink"
   | "slate"
   | "dark";
 
+// Translucent tints so badges sit on any dark surface; text steps are the light ends of each hue.
 const TONES: Record<BadgeTone, string> = {
-  neutral: "bg-paper-deep text-ink-soft border-line",
-  primary: "bg-primary-50 text-primary-700 border-primary-100",
-  success: "bg-[#e8f5ee] text-success-700 border-[#c9e8d6]",
-  teal: "bg-[#e6f4f2] text-[#0b6b63] border-[#c4e5e0]",
-  warning: "bg-[#fbf3dc] text-[#7d5a04] border-[#f0e0b0]",
-  danger: "bg-[#fbeaea] text-danger-600 border-[#f3caca]",
-  violet: "bg-accent-50 text-accent-600 border-accent-100",
-  orange: "bg-[#fdf0e6] text-[#a8410f] border-[#f7d8c0]",
-  slate: "bg-[#f0f2f5] text-[#475467] border-[#dde1e7]",
-  dark: "bg-navy-900 text-white border-navy-900",
+  neutral: "bg-white/[0.06] text-ink-soft border-white/[0.08]",
+  primary: "bg-[#4f7cf7]/[0.14] text-[#a9c0ff] border-[#4f7cf7]/[0.28]",
+  success: "bg-[#2fb35c]/[0.14] text-[#7fe0a2] border-[#2fb35c]/[0.28]",
+  teal: "bg-[#1baf7a]/[0.14] text-[#6fe0c0] border-[#1baf7a]/[0.28]",
+  warning: "bg-[#e0a526]/[0.14] text-[#f2c66a] border-[#e0a526]/[0.28]",
+  danger: "bg-[#ef5350]/[0.14] text-[#ff9c99] border-[#ef5350]/[0.3]",
+  violet: "bg-[#8b6cff]/[0.15] text-[#c4b5ff] border-[#8b6cff]/[0.3]",
+  orange: "bg-[#e0612a]/[0.15] text-[#ffab84] border-[#e0612a]/[0.3]",
+  pink: "bg-[#c94f9e]/[0.15] text-[#f29bd0] border-[#c94f9e]/[0.32]",
+  slate: "bg-white/[0.05] text-muted border-white/[0.07]",
+  dark: "bg-ink text-paper border-ink",
 };
 
 export function Badge({
@@ -43,7 +46,7 @@ export function Badge({
     <span
       title={title}
       className={cn(
-        "inline-flex max-w-full items-center gap-1.5 whitespace-nowrap rounded-[5px] border px-1.5 py-px font-medium text-[11.5px] leading-[18px]",
+        "inline-flex max-w-full items-center gap-1.5 whitespace-nowrap rounded-[5px] border px-1.5 py-px font-medium text-[11.5px] leading-[18px] tracking-normal",
         TONES[tone],
         className,
       )}

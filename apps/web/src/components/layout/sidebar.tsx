@@ -1,8 +1,15 @@
-import { cn, Icon, LogoMark } from "@citeverify/ui";
+import {
+  cn,
+  Icon,
+  IconTile,
+  ListItemContent,
+  listItemClass,
+  RailHeading,
+} from "@citeverify/ui";
 import { NavLink } from "react-router";
-import { NAV_FOOTER, NAV_MAIN, type NavItem } from "./nav.ts";
+import { NAV_SECTIONS, type NavItem } from "./nav.ts";
 
-function Item({
+function RailItem({
   item,
   collapsed,
   onNavigate,
@@ -18,121 +25,146 @@ function Item({
       onClick={onNavigate}
       title={collapsed ? item.label : undefined}
       className={({ isActive }) =>
-        cn(
-          "group relative flex h-9 items-center gap-3 rounded-md px-2.5 text-[13.5px] transition-colors duration-150",
-          collapsed && "justify-center px-0",
-          isActive
-            ? "bg-white/[0.08] font-medium text-white"
-            : "text-navy-200 hover:bg-white/[0.05] hover:text-white",
-        )
+        collapsed
+          ? cn(
+              "group flex justify-center rounded-[10px] p-1 transition-colors",
+              isActive ? "bg-white/[0.07]" : "hover:bg-white/[0.04]",
+            )
+          : listItemClass(
+              cn(
+                "py-2",
+                isActive &&
+                  "border-white/[0.16] bg-[#1d1d21] shadow-raised hover:border-white/[0.2] hover:bg-[#1f1f23]",
+              ),
+            )
       }
     >
-      {({ isActive }) => (
-        <>
-          <span
-            className={cn(
-              "absolute top-1.5 bottom-1.5 -left-3 w-[3px] rounded-r-full bg-electric-400 transition-opacity",
-              isActive ? "opacity-100" : "opacity-0",
-            )}
-            aria-hidden="true"
-          />
-          <Icon
-            name={item.icon}
-            size={18}
-            className={cn(
-              "shrink-0",
-              isActive
-                ? "text-electric-400"
-                : "text-navy-300 group-hover:text-navy-100",
-            )}
-          />
-          {collapsed ? (
+      {({ isActive }) =>
+        collapsed ? (
+          <>
+            <IconTile
+              icon={item.icon}
+              tone={isActive ? "primary" : "neutral"}
+              className={cn(isActive && "border-white/[0.18]")}
+            />
             <span className="sr-only">{item.label}</span>
-          ) : (
-            <span className="truncate">{item.label}</span>
-          )}
-        </>
-      )}
+          </>
+        ) : (
+          <ListItemContent
+            leading={
+              <IconTile
+                icon={item.icon}
+                tone={isActive ? "primary" : "neutral"}
+              />
+            }
+            title={item.label}
+            subtitle={item.description}
+            trailing={
+              isActive ? (
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-[#8aa9ff] shadow-[0_0_8px_rgb(138_169_255/0.8)]"
+                  aria-hidden="true"
+                />
+              ) : (
+                <Icon
+                  name="chevronRight"
+                  size={14}
+                  className="text-subtle opacity-0 transition-opacity group-hover:opacity-100"
+                />
+              )
+            }
+          />
+        )
+      }
     </NavLink>
   );
 }
 
+/**
+ * Right-hand navigation rail. Expanded it shows each destination as a card
+ * (icon tile, title, description); collapsed it shrinks to an icon column.
+ */
 export function Sidebar({
   collapsed,
   onToggle,
   onNavigate,
-  mobile = false,
+  onClose,
 }: {
   collapsed: boolean;
   onToggle?: () => void;
   onNavigate?: () => void;
-  mobile?: boolean;
+  /** Mobile drawer: show a close button instead of the collapse toggle. */
+  onClose?: () => void;
 }) {
   return (
-    <div className="flex h-full flex-col bg-navy-950 text-white">
+    <div className="flex h-full flex-col">
       <div
         className={cn(
-          "flex h-14 items-center gap-2.5 px-4",
-          collapsed && "justify-center px-0",
+          "flex items-start gap-2 pt-5 pb-4",
+          collapsed ? "justify-center px-2" : "justify-between px-4",
         )}
       >
-        <LogoMark size={28} />
         {collapsed ? null : (
-          <div className="min-w-0 leading-tight">
-            <div className="font-display font-semibold text-[16.5px] tracking-[-0.01em]">
-              CiteVerify
+          <div className="min-w-0">
+            <div className="font-semibold text-[15px] text-ink tracking-[-0.01em]">
+              Navigate
             </div>
-            <div className="text-[10.5px] text-navy-300 uppercase tracking-[0.12em]">
-              Citation integrity
+            <div className="mt-0.5 text-[12.5px] text-muted">
+              Documents, analysis and reports.
             </div>
           </div>
         )}
-      </div>
-      <nav
-        aria-label="Primary"
-        className="scrollbar-thin flex-1 overflow-y-auto px-3 pt-3"
-      >
-        {collapsed ? null : (
-          <div className="mb-2 px-2.5 font-medium text-[10.5px] text-navy-400 uppercase tracking-[0.12em]">
-            Workspace
-          </div>
-        )}
-        <div className="space-y-0.5">
-          {NAV_MAIN.map((item) => (
-            <Item
-              key={item.to}
-              item={item}
-              collapsed={collapsed}
-              onNavigate={onNavigate}
-            />
-          ))}
-        </div>
-      </nav>
-      <div className="space-y-0.5 border-white/[0.06] border-t px-3 py-3">
-        {NAV_FOOTER.map((item) => (
-          <Item
-            key={item.to}
-            item={item}
-            collapsed={collapsed}
-            onNavigate={onNavigate}
-          />
-        ))}
-        {mobile || !onToggle ? null : (
+        {onClose || onToggle ? (
           <button
             type="button"
-            onClick={onToggle}
-            className={cn(
-              "flex h-9 w-full items-center gap-3 rounded-md px-2.5 text-[13px] text-navy-300 transition-colors hover:bg-white/[0.05] hover:text-white",
-              collapsed && "justify-center px-0",
-            )}
-            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-            aria-expanded={!collapsed}
+            onClick={onClose ?? onToggle}
+            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[7px] border border-white/[0.08] bg-white/[0.04] text-muted transition-colors hover:bg-white/[0.08] hover:text-ink"
+            aria-label={
+              onClose
+                ? "Close navigation"
+                : collapsed
+                  ? "Expand navigation"
+                  : "Collapse navigation"
+            }
+            aria-expanded={onClose ? undefined : !collapsed}
           >
-            <Icon name={collapsed ? "chevronRight" : "chevronLeft"} size={17} />
-            {collapsed ? null : <span>Collapse</span>}
+            <Icon
+              name={
+                onClose ? "close" : collapsed ? "chevronLeft" : "chevronRight"
+              }
+              size={15}
+            />
           </button>
-        )}
+        ) : null}
       </div>
+      {collapsed ? null : <div className="mx-4 border-line border-t" />}
+      <nav
+        aria-label="Primary"
+        className={cn(
+          "scrollbar-thin flex-1 overflow-y-auto pt-4 pb-6",
+          collapsed ? "px-2" : "px-4",
+        )}
+      >
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.title} className="mb-5 last:mb-0">
+            {collapsed ? (
+              <div className="mx-auto mb-2 h-px w-6 bg-white/[0.08]" />
+            ) : (
+              <RailHeading>{section.title}</RailHeading>
+            )}
+            <div className={collapsed ? "space-y-1" : "space-y-2"}>
+              {section.items.map((item) => (
+                <RailItem
+                  key={item.to}
+                  item={item}
+                  collapsed={collapsed}
+                  onNavigate={onNavigate}
+                />
+              ))}
+            </div>
+          </div>
+        ))}
+      </nav>
     </div>
   );
 }

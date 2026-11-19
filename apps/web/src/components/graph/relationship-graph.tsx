@@ -392,7 +392,7 @@ export function RelationshipGraph({ documentId }: { documentId: string }) {
                   key={`${e.from}>${e.to}`}
                   d={`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`}
                   fill="none"
-                  stroke={on ? "#2a78d6" : "#cfd5df"}
+                  stroke={on ? "#5b86ff" : "#34343a"}
                   strokeWidth={on ? 2 : 1.25}
                   opacity={connected && !on ? 0.35 : 1}
                 />
@@ -427,8 +427,8 @@ export function RelationshipGraph({ documentId }: { documentId: string }) {
                     width={NODE_W}
                     height={NODE_H}
                     rx={4}
-                    fill="#fff"
-                    stroke={active ? "#1d4ed8" : "#d6dbe3"}
+                    fill="#1b1b1e"
+                    stroke={active ? "#8aa9ff" : "#34343a"}
                     strokeWidth={active ? 2 : 1}
                   />
                   {n.color ? (

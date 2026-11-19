@@ -27,26 +27,20 @@ export function EmptyState({
     <div
       className={cn(
         "flex flex-col items-center justify-center text-center",
-        compact ? "px-4 py-8" : "px-6 py-14",
+        compact ? "px-4 py-8" : "px-6 py-12",
         className,
       )}
     >
-      <div className="relative mb-4">
-        <div
-          className="absolute inset-0 -m-3 rounded-full bg-primary-50"
-          aria-hidden="true"
-        />
-        <div className="relative flex h-11 w-11 items-center justify-center rounded-lg border border-line bg-surface text-primary-500 shadow-card">
-          <Icon name={icon} size={20} />
-        </div>
+      <div className="gloss-strong mb-3.5 flex h-10 w-10 items-center justify-center rounded-[9px] border border-white/[0.08] bg-paper-deep text-muted shadow-card">
+        <Icon name={icon} size={18} />
       </div>
-      <h4 className="font-semibold text-[15px] text-ink">{title}</h4>
+      <h4 className="font-semibold text-[13.5px] text-ink">{title}</h4>
       {description ? (
-        <p className="mt-1 max-w-sm text-[13px] text-muted leading-relaxed">
+        <p className="mt-1 max-w-sm text-[12.5px] text-muted leading-relaxed">
           {description}
         </p>
       ) : null}
-      {action ? <div className="mt-4">{action}</div> : null}
+      {action ? <div className="mt-3.5">{action}</div> : null}
     </div>
   );
 }
@@ -55,19 +49,25 @@ export type CalloutTone = "info" | "warning" | "danger" | "success" | "neutral";
 
 const CALLOUT: Record<CalloutTone, { box: string; icon: IconName }> = {
   info: {
-    box: "border-primary-100 bg-primary-50/60 text-navy-800",
+    box: "border-[#4f7cf7]/25 bg-[#4f7cf7]/[0.08] text-[#c7d6ff]",
     icon: "info",
   },
   warning: {
-    box: "border-[#f0e0b0] bg-[#fdf8ea] text-[#6b4d04]",
+    box: "border-[#e0a526]/25 bg-[#e0a526]/[0.08] text-[#f5d595]",
     icon: "alert",
   },
-  danger: { box: "border-[#f3caca] bg-[#fdf3f3] text-[#8c1a1a]", icon: "x" },
+  danger: {
+    box: "border-[#ef5350]/30 bg-[#ef5350]/[0.08] text-[#ffb3b1]",
+    icon: "x",
+  },
   success: {
-    box: "border-[#c9e8d6] bg-[#f1f9f4] text-[#0f5c36]",
+    box: "border-[#2fb35c]/25 bg-[#2fb35c]/[0.08] text-[#9fe8b8]",
     icon: "checkCircle",
   },
-  neutral: { box: "border-line bg-paper text-ink-soft", icon: "info" },
+  neutral: {
+    box: "border-line bg-white/[0.03] text-ink-soft",
+    icon: "info",
+  },
 };
 
 export function Callout({
@@ -88,7 +88,7 @@ export function Callout({
     <div
       role={tone === "danger" ? "alert" : "note"}
       className={cn(
-        "flex gap-3 rounded-md border px-3.5 py-3 text-[13px]",
+        "flex gap-3 rounded-[9px] border px-3.5 py-3 text-[12.5px]",
         t.box,
         className,
       )}
@@ -125,7 +125,7 @@ export function ProgressBar({
   const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0;
   const color = {
     primary: "bg-primary-500",
-    success: "bg-success-600",
+    success: "bg-[#4cc97a]",
     warning: "bg-warning-500",
     danger: "bg-danger-600",
     violet: "bg-accent-500",
@@ -138,14 +138,14 @@ export function ProgressBar({
       aria-valuenow={Math.round(value)}
       aria-label={label}
       className={cn(
-        "w-full overflow-hidden rounded-full bg-paper-deep",
+        "w-full overflow-hidden rounded-full bg-white/[0.08] shadow-[inset_0_1px_1px_rgb(0_0_0/0.4)]",
         size === "sm" ? "h-1.5" : "h-2",
         className,
       )}
     >
       <div
         className={cn(
-          "h-full rounded-full transition-[width] duration-500 ease-out",
+          "h-full rounded-full bg-[linear-gradient(180deg,rgb(255_255_255/0.25),rgb(255_255_255/0))] transition-[width] duration-500 ease-out",
           color,
         )}
         style={{ width: `${pct}%` }}
@@ -156,7 +156,7 @@ export function ProgressBar({
 
 export function Kbd({ children }: { children: ReactNode }) {
   return (
-    <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded border border-line-strong bg-surface px-1 font-mono text-[10.5px] text-muted">
+    <kbd className="inline-flex h-5 min-w-5 items-center justify-center rounded-[5px] border border-white/[0.08] bg-white/[0.05] px-1 font-mono text-[10.5px] text-muted">
       {children}
     </kbd>
   );

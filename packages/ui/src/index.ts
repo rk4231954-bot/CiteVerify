@@ -8,6 +8,28 @@ export {
   buttonClass,
 } from "./components/button.tsx";
 export { Card, CardBody, CardHeader } from "./components/card.tsx";
+export {
+  Avatar,
+  BigNumber,
+  HeroStat,
+  IconTile,
+  InlineNotice,
+  InsetBox,
+  ListItem,
+  ListItemContent,
+  listItemClass,
+  MetaLine,
+  MeterRow,
+  MiniBars,
+  Panel,
+  RailHeading,
+  StatList,
+  StatRow,
+  StatusChip,
+  type TileTone,
+  Timeline,
+  TimelineItem,
+} from "./components/dashboard.tsx";
 export { ConfirmDialog, Dialog, Drawer } from "./components/dialog.tsx";
 export {
   Callout,

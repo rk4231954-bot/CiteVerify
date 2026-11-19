@@ -17,7 +17,13 @@ import {
 } from "recharts";
 import { useReducedMotion } from "../../hooks/use-media.ts";
 import { VERDICTS } from "../../lib/domain.ts";
-import { AXIS, GRID_STROKE, SERIES, TooltipBox } from "./chart-card.tsx";
+import {
+  AXIS,
+  GRID_STROKE,
+  SERIES,
+  SURFACE,
+  TooltipBox,
+} from "./chart-card.tsx";
 
 // Recharts passes these to custom tooltip content.
 interface TipProps<P> {
@@ -52,7 +58,7 @@ export function VerdictDonut({
               innerRadius={58}
               outerRadius={84}
               paddingAngle={visible.length > 1 ? 1.5 : 0}
-              stroke="#ffffff"
+              stroke={SURFACE}
               strokeWidth={2}
               startAngle={90}
               endAngle={-270}
@@ -177,7 +183,7 @@ export function ActivityLine({
             />
             <YAxis {...AXIS} allowDecimals={false} width={44} />
             <Tooltip
-              cursor={{ stroke: "#b3bfdc", strokeWidth: 1 }}
+              cursor={{ stroke: "#4a4a52", strokeWidth: 1 }}
               content={({
                 active,
                 payload,
@@ -209,7 +215,7 @@ export function ActivityLine({
                 dot={false}
                 activeDot={{
                   r: 5,
-                  stroke: "#ffffff",
+                  stroke: SURFACE,
                   strokeWidth: 2,
                   fill: s.color,
                 }}
@@ -250,7 +256,7 @@ export function CountColumns({
           <XAxis dataKey={xKey} {...AXIS} interval={0} />
           <YAxis {...AXIS} allowDecimals={false} width={44} />
           <Tooltip
-            cursor={{ fill: "#f2f1ec" }}
+            cursor={{ fill: "rgb(255 255 255 / 0.04)" }}
             content={({
               active,
               payload,
@@ -278,7 +284,7 @@ export function CountColumns({
             radius={[4, 4, 0, 0]}
             isAnimationActive={!reduced}
             animationDuration={700}
-            label={{ position: "top", fill: "#2b3346", fontSize: 11.5 }}
+            label={{ position: "top", fill: "#c8c8ce", fontSize: 11.5 }}
           />
         </BarChart>
       </ResponsiveContainer>

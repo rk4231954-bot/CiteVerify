@@ -17,10 +17,10 @@ function AuthLayout({
   children: ReactNode;
 }) {
   return (
-    <div className="grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
-      <aside className="relative hidden overflow-hidden bg-navy-950 text-white lg:flex lg:flex-col lg:justify-between lg:p-12">
+    <div className="app-window grid min-h-dvh lg:grid-cols-[1.05fr_1fr]">
+      <aside className="relative hidden overflow-hidden border-line border-r bg-frame text-ink lg:flex lg:flex-col lg:justify-between lg:p-12">
         <div
-          className="pointer-events-none absolute inset-0 opacity-[0.07]"
+          className="pointer-events-none absolute inset-0 opacity-[0.05] [mask-image:radial-gradient(80%_60%_at_30%_40%,black,transparent)]"
           style={{
             backgroundImage:
               "linear-gradient(to right, #fff 1px, transparent 1px), linear-gradient(to bottom, #fff 1px, transparent 1px)",
@@ -30,21 +30,21 @@ function AuthLayout({
         />
         <div className="relative flex items-center gap-3">
           <LogoMark size={34} />
-          <span className="font-display font-semibold text-[20px]">
+          <span className="font-semibold text-[19px] tracking-[-0.02em]">
             CiteVerify
           </span>
         </div>
         <div className="relative max-w-md">
-          <p className="font-display text-[34px] leading-[1.15] tracking-[-0.01em]">
+          <p className="bg-[linear-gradient(180deg,#ffffff,#a1a1aa)] bg-clip-text font-semibold text-[34px] text-transparent leading-[1.12] tracking-[-0.03em]">
             Does the evidence say what the citation claims?
           </p>
-          <p className="mt-4 text-[15px] text-navy-200 leading-relaxed">
+          <p className="mt-4 text-[14.5px] text-muted leading-relaxed">
             CiteVerify extracts the claims in a manuscript, maps each citation
             to its source publication, reads the available abstract or
             open-access full text, and produces an evidence-linked, automated
             assessment for human review.
           </p>
-          <ol className="mt-8 space-y-2.5 text-[13.5px] text-navy-100">
+          <ol className="mt-8 space-y-2.5 text-[13.5px] text-ink-soft">
             {[
               "Claims identified in your text",
               "Citations mapped to publications",
@@ -52,7 +52,7 @@ function AuthLayout({
               "Verdicts with explanations & limitations",
             ].map((s, i) => (
               <li key={s} className="flex items-center gap-3">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/15 font-mono text-[11px] text-electric-400">
+                <span className="gloss-strong flex h-6 w-6 items-center justify-center rounded-[7px] border border-white/[0.1] bg-[#222226] font-mono text-[11px] text-[#8aa9ff]">
                   {i + 1}
                 </span>
                 {s}
@@ -60,7 +60,7 @@ function AuthLayout({
             ))}
           </ol>
         </div>
-        <div className="relative text-[12px] text-navy-400">
+        <div className="relative text-[12px] text-subtle">
           Automated assessments support — never replace — expert review.
         </div>
       </aside>

@@ -4,7 +4,9 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Icon,
+  IconTile,
+  InlineNotice,
+  ListItem,
   Skeleton,
 } from "@citeverify/ui";
 import { ErrorState, KeyValue, PageHeader } from "../components/common.tsx";
@@ -24,27 +26,24 @@ function Capability({
   detail: string;
 }) {
   return (
-    <li className="flex items-start gap-3 py-3">
-      <span
-        className={
-          on
-            ? "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-success-50 text-success-700"
-            : "mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-paper-deep text-subtle"
+    <li>
+      <ListItem
+        leading={
+          <IconTile
+            icon={on ? "check" : "minus"}
+            tone={on ? "success" : "neutral"}
+          />
         }
-      >
-        <Icon name={on ? "check" : "minus"} size={14} strokeWidth={2.2} />
-      </span>
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-center gap-2 font-medium text-[13.5px] text-ink">
-          {label}
+        title={label}
+        subtitle={
+          <span className="whitespace-normal leading-relaxed">{detail}</span>
+        }
+        trailing={
           <Badge tone={on ? "success" : "neutral"}>
             {on ? "Available" : "Not available"}
           </Badge>
-        </div>
-        <p className="mt-0.5 text-[12.5px] text-muted leading-relaxed">
-          {detail}
-        </p>
-      </div>
+        }
+      />
     </li>
   );
 }
@@ -115,7 +114,7 @@ export function SettingsPage() {
               </div>
             ) : (
               <>
-                <ul className="divide-y divide-line">
+                <ul className="space-y-2">
                   <Capability
                     on
                     label="Rule-based pipeline"
@@ -147,10 +146,10 @@ export function SettingsPage() {
                     detail="Not implemented in the API. The Reports page assembles reports in the browser (Markdown/JSON download and print-to-PDF)."
                   />
                 </ul>
-                <div className="mt-4 rounded-md border border-line bg-paper px-4 py-3 text-[12.5px] text-muted">
+                <InlineNotice className="mt-4">
                   Uploads: {config.data.upload.extensions.join(", ")} up to{" "}
                   {formatBytes(config.data.upload.maxBytes)}.
-                </div>
+                </InlineNotice>
               </>
             )}
           </CardBody>

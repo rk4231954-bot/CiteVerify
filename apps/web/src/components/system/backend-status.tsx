@@ -2,7 +2,7 @@ import { Button, Callout, cn } from "@citeverify/ui";
 import { type BackendState, useBackendStatus } from "../../lib/backend.ts";
 
 const DOT: Record<BackendState, string> = {
-  online: "bg-success-600",
+  online: "bg-[#4cc97a] shadow-[0_0_6px_rgb(76_201_122/0.8)]",
   checking: "bg-navy-300",
   degraded: "bg-warning-500",
   offline: "bg-danger-600",
@@ -16,16 +16,18 @@ const LABEL: Record<BackendState, string> = {
   "not-configured": "No API configured",
 };
 
-/** Compact pill for the top bar; hidden while everything is fine. */
+/** Compact top-bar pill showing the API connection (like the reference's usage pill). */
 export function BackendStatusPill({ className }: { className?: string }) {
   const s = useBackendStatus();
-  if (s.state === "online" || s.state === "checking") return null;
   return (
     <span
       role="status"
       title={s.message}
       className={cn(
-        "inline-flex h-8 items-center gap-1.5 rounded-md border border-line-strong bg-surface px-2.5 text-[12px] text-ink-soft",
+        "inline-flex h-7 items-center gap-1.5 rounded-[7px] px-2 text-[12.5px] text-ink-soft",
+        s.state !== "online" &&
+          s.state !== "checking" &&
+          "border border-white/[0.08] bg-white/[0.04]",
         className,
       )}
     >

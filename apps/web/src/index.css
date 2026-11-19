@@ -3,87 +3,94 @@
 
 /* ───────────────────────── CiteVerify design tokens ───────────────────────── */
 @theme {
-  /* Typography */
+  /* Typography: Geist (UI) + Geist Mono (numbers, codes). Loaded in index.html. */
   --font-sans:
-    "Inter", "Inter Variable", ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display:
-    "Iowan Old Style", "Charter", "Source Serif Pro", "Palatino Linotype",
-    Georgia, Cambria, "Times New Roman", serif;
+    "Geist", "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
   --font-mono:
-    ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    "Geist Mono", ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas,
+    monospace;
 
-  /* Deep navy (shell, headings) */
-  --color-navy-50: #eef1f8;
-  --color-navy-100: #d9dfee;
-  --color-navy-200: #b3bfdc;
-  --color-navy-300: #8094bf;
-  --color-navy-400: #536a9e;
-  --color-navy-500: #34497c;
-  --color-navy-600: #233660;
-  --color-navy-700: #1a2b52;
-  --color-navy-800: #16274f;
-  --color-navy-900: #0f1d3d;
-  --color-navy-950: #0b1530;
+  /* Dark theme. Token names are kept from the light theme so every page
+     restyles in one place: "navy" is now a neutral ramp that runs from the
+     darkest fill (50) to the brightest text (950). */
+  --color-navy-50: #1c1c20;
+  --color-navy-100: #26262b;
+  --color-navy-200: #3a3a41;
+  --color-navy-300: #8a8a93;
+  --color-navy-400: #9d9da6;
+  --color-navy-500: #b0b0b8;
+  --color-navy-600: #c2c2c9;
+  --color-navy-700: #d4d4da;
+  --color-navy-800: #e2e2e7;
+  --color-navy-900: #ececf0;
+  --color-navy-950: #f5f5f7;
 
-  /* Primary blue */
-  --color-primary-50: #eef3ff;
-  --color-primary-100: #dbe5fe;
-  --color-primary-200: #bccdfd;
-  --color-primary-300: #8eabf9;
-  --color-primary-400: #5f84f3;
-  --color-primary-500: #2f5bea;
-  --color-primary-600: #2449cf;
-  --color-primary-700: #1f3ba6;
-  --color-primary-800: #1d3383;
+  /* Accent blue (links, focus, data marks). Low steps are dark tints, high steps are light text. */
+  --color-primary-50: #131b2e;
+  --color-primary-100: #1a2440;
+  --color-primary-200: #233258;
+  --color-primary-300: #3a5596;
+  --color-primary-400: #6f95f5;
+  --color-primary-500: #4f7cf7;
+  --color-primary-600: #8aa9ff;
+  --color-primary-700: #a9c0ff;
+  --color-primary-800: #c7d6ff;
 
-  /* Accents */
-  --color-electric-400: #60a5fa;
-  --color-electric-500: #3b82f6;
-  --color-accent-50: #f3f0ff;
-  --color-accent-100: #e7e1ff;
-  --color-accent-400: #9b82fd;
-  --color-accent-500: #7c5cfc;
-  --color-accent-600: #6440e6;
+  --color-electric-400: #7cb4ff;
+  --color-electric-500: #4f9bff;
+  --color-accent-50: #1b1630;
+  --color-accent-100: #2a2150;
+  --color-accent-400: #a993ff;
+  --color-accent-500: #8b6cff;
+  --color-accent-600: #b29dff;
 
-  /* Warm neutrals */
-  --color-paper: #f7f6f2;
-  --color-paper-deep: #efede6;
-  --color-surface: #ffffff;
-  --color-line: #e6e4dd;
-  --color-line-strong: #d5d2c8;
-  --color-ink: #0f172a;
-  --color-ink-soft: #2b3346;
-  --color-muted: #5b6478;
-  --color-subtle: #868d9c;
+  /* Surfaces and text */
+  --color-paper: #0e0e10;
+  --color-paper-deep: #1d1d21;
+  --color-surface: #161618;
+  --color-line: #26262a;
+  --color-line-strong: #323237;
+  --color-ink: #ededef;
+  --color-ink-soft: #c8c8ce;
+  --color-muted: #9b9ba4;
+  --color-subtle: #70707a;
+  --color-frame: #050506;
 
-  /* Verdict chart marks — validated (CVD + normal-vision separation) with the dataviz palette
-     validator; always paired with a label + icon. Text uses the darker badge tokens below. */
+  /* Verdict chart marks, stepped for the dark surface and validated with the
+     dataviz palette validator (lightness band, chroma, CVD and normal-vision
+     separation, 3:1 contrast on #141416). Always paired with a label + icon. */
   --color-v-supported: #008300;
   --color-v-partial: #1baf7a;
   --color-v-unsupported: #2a78d6;
   --color-v-contradicted: #e34948;
   --color-v-outdated: #6250d6;
-  --color-v-misleading: #e35a26;
-  --color-v-review: #eda100;
+  --color-v-misleading: #c94f9e;
+  --color-v-review: #b88700;
 
-  /* Status (UI text, icons, buttons) — distinct from the verdict chart marks */
-  --color-success-50: #eef7f0;
-  --color-success-600: #17803d;
-  --color-success-700: #0b6b2f;
-  --color-warning-50: #fdf6e3;
-  --color-warning-500: #c48a00;
-  --color-warning-700: #7d5a04;
-  --color-danger-50: #fdf0f0;
-  --color-danger-600: #b42323;
-  --color-danger-700: #911b1b;
+  /* Status (UI text, icons, buttons): -50 is a dark tint, -600 a solid fill, -700 light text */
+  --color-success-50: #0f2018;
+  --color-success-600: #2fb35c;
+  --color-success-700: #6bd892;
+  --color-warning-50: #241c0b;
+  --color-warning-500: #e0a526;
+  --color-warning-700: #f2c66a;
+  --color-danger-50: #2a1214;
+  --color-danger-600: #ef5350;
+  --color-danger-700: #ff8f8c;
 
-  /* Elevation */
-  --shadow-card: 0 1px 0 rgb(15 23 42 / 0.03), 0 1px 2px rgb(15 23 42 / 0.05);
+  /* Elevation: a 1px top highlight gives the glossy edge */
+  --shadow-card:
+    inset 0 1px 0 rgb(255 255 255 / 0.05), 0 1px 2px rgb(0 0 0 / 0.45);
   --shadow-raised:
-    0 1px 2px rgb(15 23 42 / 0.05), 0 8px 24px -8px rgb(15 23 42 / 0.12);
+    inset 0 1px 0 rgb(255 255 255 / 0.06), 0 1px 2px rgb(0 0 0 / 0.5),
+    0 12px 32px -12px rgb(0 0 0 / 0.7);
   --shadow-overlay:
-    0 24px 64px -16px rgb(11 21 48 / 0.35), 0 2px 6px rgb(11 21 48 / 0.08);
+    inset 0 1px 0 rgb(255 255 255 / 0.06), 0 24px 64px -16px rgb(0 0 0 / 0.8),
+    0 2px 6px rgb(0 0 0 / 0.5);
 
   --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
 
@@ -136,9 +143,16 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
+  html {
+    color-scheme: dark;
+    background: var(--color-frame);
+  }
   body {
-    @apply bg-paper font-sans text-ink;
-    font-feature-settings: "cv11", "ss01";
+    @apply bg-frame font-sans text-ink;
+    font-feature-settings:
+      "ss01",
+      "tnum" 0;
+    letter-spacing: -0.006em;
   }
   ::selection {
     background: color-mix(in srgb, var(--color-primary-500) 22%, transparent);
@@ -148,8 +162,8 @@
     outline-offset: 2px;
   }
   dialog::backdrop {
-    background: rgb(11 21 48 / 0.45);
-    backdrop-filter: blur(2px);
+    background: rgb(0 0 0 / 0.6);
+    backdrop-filter: blur(4px);
   }
   mark {
     background: color-mix(in srgb, var(--color-electric-400) 28%, transparent);
@@ -164,7 +178,7 @@
     background: linear-gradient(
       90deg,
       var(--color-paper-deep) 0%,
-      color-mix(in srgb, var(--color-paper-deep) 40%, white) 50%,
+      color-mix(in srgb, var(--color-paper-deep) 88%, white) 50%,
       var(--color-paper-deep) 100%
     );
     background-size: 200% 100%;
@@ -177,12 +191,60 @@
   .tabular {
     font-variant-numeric: tabular-nums;
   }
+
+  /* Glossy surfaces: a faint top-lit gradient plus the 1px highlight in --shadow-card. */
+  .gloss {
+    background-image: linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.045) 0%,
+      rgb(255 255 255 / 0.012) 38%,
+      rgb(255 255 255 / 0) 100%
+    );
+  }
+  .gloss-strong {
+    background-image: linear-gradient(
+      180deg,
+      rgb(255 255 255 / 0.08) 0%,
+      rgb(255 255 255 / 0.02) 50%,
+      rgb(255 255 255 / 0) 100%
+    );
+  }
+  /* The app window: framed panel with a soft top glow, as in the reference design. */
+  .app-window {
+    background:
+      radial-gradient(
+        120% 60% at 50% -10%,
+        rgb(120 140 255 / 0.07),
+        transparent 60%
+      ),
+      var(--color-paper);
+  }
 }
 
 /* biome-ignore-start lint/complexity/noImportantStyles: print and reduced-motion overrides must win. */
 @media print {
+  :root {
+    --color-paper: #ffffff;
+    --color-paper-deep: #f1f1f3;
+    --color-surface: #ffffff;
+    --color-line: #e4e4e7;
+    --color-line-strong: #d4d4d8;
+    --color-ink: #0f172a;
+    --color-ink-soft: #2b3346;
+    --color-muted: #5b6478;
+    --color-subtle: #868d9c;
+    --color-navy-950: #0b1530;
+  }
+  .gloss,
+  .gloss-strong,
+  .app-window {
+    background-image: none;
+    box-shadow: none;
+  }
+  html,
   body {
     background: white;
+    color-scheme: light;
   }
   .no-print {
     display: none !important;

@@ -1,8 +1,7 @@
-import { cn, Icon } from "@citeverify/ui";
+import { Avatar, cn, Icon } from "@citeverify/ui";
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../../lib/auth.tsx";
-import { initials } from "../../lib/format.ts";
 
 export function UserMenu() {
   const { user, logout } = useAuth();
@@ -31,27 +30,18 @@ export function UserMenu() {
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="menu"
         aria-expanded={open}
-        className="flex items-center gap-2 rounded-md py-1 pr-1.5 pl-1 transition-colors hover:bg-navy-50"
+        aria-label={`Account menu for ${user.name}`}
+        className="flex items-center rounded-full p-0.5 transition-colors hover:bg-white/[0.06]"
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-navy-900 font-semibold text-[11.5px] text-white">
-          {initials(user.name)}
-        </span>
-        <span className="hidden max-w-36 truncate text-[13px] text-ink-soft md:block">
-          {user.name}
-        </span>
-        <Icon
-          name="chevronDown"
-          size={14}
-          className="hidden text-subtle md:block"
-        />
+        <Avatar name={user.name} />
       </button>
       {open ? (
         <div
           role="menu"
-          className="absolute right-0 z-40 mt-2 w-64 animate-fade-up rounded-lg border border-line bg-surface py-1.5 shadow-raised"
+          className="gloss absolute right-0 z-40 mt-2 w-64 animate-fade-up rounded-[10px] border border-line-strong bg-surface py-1.5 shadow-overlay"
         >
           <div className="border-line border-b px-3.5 pt-1.5 pb-2.5">
-            <div className="truncate font-medium text-[13.5px] text-ink">
+            <div className="truncate font-medium text-[13px] text-ink">
               {user.name}
             </div>
             <div className="truncate text-[12.5px] text-muted">
@@ -63,7 +53,7 @@ export function UserMenu() {
             to="/settings"
             onClick={() => setOpen(false)}
             className={cn(
-              "flex items-center gap-2.5 px-3.5 py-2 text-[13.5px] text-ink-soft hover:bg-paper",
+              "flex items-center gap-2.5 px-3.5 py-2 text-[13px] text-ink-soft hover:bg-white/[0.05] hover:text-ink",
             )}
           >
             <Icon name="settings" size={16} className="text-subtle" /> Account
@@ -76,7 +66,7 @@ export function UserMenu() {
               setOpen(false);
               logout();
             }}
-            className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[13.5px] text-ink-soft hover:bg-paper"
+            className="flex w-full items-center gap-2.5 px-3.5 py-2 text-left text-[13px] text-ink-soft hover:bg-white/[0.05] hover:text-ink"
           >
             <Icon name="logout" size={16} className="text-subtle" /> Sign out
           </button>

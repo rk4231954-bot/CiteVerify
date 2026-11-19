@@ -43,7 +43,7 @@ export function Tabs<K extends string>({
     <div
       role="tablist"
       className={cn(
-        "scrollbar-thin flex gap-1 overflow-x-auto border-line border-b",
+        "scrollbar-thin flex gap-5 overflow-x-auto border-line border-b",
         className,
       )}
     >
@@ -64,10 +64,10 @@ export function Tabs<K extends string>({
             onClick={() => onChange(item.key)}
             onKeyDown={(e) => onKey(e, i)}
             className={cn(
-              "relative -mb-px flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 font-medium text-[13.5px] transition-colors",
+              "relative -mb-px flex shrink-0 items-center gap-2 whitespace-nowrap border-b-2 px-1 py-2.5 font-medium text-[13px] transition-colors",
               active
-                ? "border-primary-500 text-navy-950"
-                : "border-transparent text-muted hover:border-line-strong hover:text-ink",
+                ? "border-ink text-ink"
+                : "border-transparent text-muted hover:text-ink",
             )}
           >
             {item.label}
@@ -76,8 +76,8 @@ export function Tabs<K extends string>({
                 className={cn(
                   "tabular rounded px-1.5 text-[11px] leading-[18px]",
                   active
-                    ? "bg-primary-50 text-primary-700"
-                    : "bg-paper-deep text-muted",
+                    ? "bg-white/[0.1] text-ink"
+                    : "bg-white/[0.05] text-muted",
                 )}
               >
                 {item.count}
@@ -131,7 +131,7 @@ export function Segmented<K extends string>({
     <fieldset
       aria-label={label}
       className={cn(
-        "inline-flex rounded-md border border-line-strong bg-paper p-0.5",
+        "inline-flex rounded-[8px] border border-line bg-[#121214] p-0.5 shadow-[inset_0_1px_2px_rgb(0_0_0/0.35)]",
         className,
       )}
     >
@@ -142,9 +142,9 @@ export function Segmented<K extends string>({
           aria-pressed={item.key === value}
           onClick={() => onChange(item.key)}
           className={cn(
-            "h-7 rounded-[5px] px-2.5 font-medium text-[12.5px] transition-colors",
+            "h-7 rounded-[6px] px-2.5 font-medium text-[12.5px] transition-colors",
             item.key === value
-              ? "bg-surface text-navy-950 shadow-card"
+              ? "bg-[linear-gradient(180deg,#2e2e33,#242428)] text-ink shadow-card"
               : "text-muted hover:text-ink",
           )}
         >

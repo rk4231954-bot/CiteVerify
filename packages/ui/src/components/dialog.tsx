@@ -46,7 +46,7 @@ export function Dialog({
         if (e.target === e.currentTarget) onClose();
       }}
       className={cn(
-        "m-auto w-[calc(100%-2rem)] rounded-lg border border-line bg-surface p-0 text-ink shadow-overlay",
+        "gloss m-auto w-[calc(100%-2rem)] rounded-[12px] border border-line-strong bg-surface p-0 text-ink shadow-overlay",
         "open:animate-fade-up",
         size === "sm" ? "max-w-md" : size === "md" ? "max-w-lg" : "max-w-3xl",
       )}
@@ -55,7 +55,7 @@ export function Dialog({
         <div className="flex max-h-[85vh] flex-col">
           <div className="flex items-start justify-between gap-4 border-line border-b px-5 py-4">
             <div>
-              <h2 className="font-display font-semibold text-[19px] text-navy-950 leading-tight">
+              <h2 className="font-semibold text-[16px] text-ink leading-tight tracking-[-0.01em]">
                 {title}
               </h2>
               {description ? (
@@ -65,7 +65,7 @@ export function Dialog({
             <button
               type="button"
               onClick={onClose}
-              className="-mr-1 rounded-md p-1 text-subtle hover:bg-paper hover:text-ink"
+              className="-mr-1 rounded-md p-1 text-subtle hover:bg-white/[0.06] hover:text-ink"
               aria-label="Close dialog"
             >
               <Icon name="close" size={18} />
@@ -77,7 +77,7 @@ export function Dialog({
             </div>
           ) : null}
           {footer ? (
-            <div className="flex justify-end gap-2 border-line border-t bg-paper/60 px-5 py-3">
+            <div className="flex justify-end gap-2 border-line border-t bg-black/20 px-5 py-3">
               {footer}
             </div>
           ) : null}
@@ -182,7 +182,7 @@ export function Drawer({
         if (e.target === e.currentTarget) onClose();
       }}
       className={cn(
-        "m-0 ml-auto h-dvh max-h-dvh w-full border-line border-l bg-surface p-0 text-ink shadow-overlay",
+        "m-0 ml-auto h-dvh max-h-dvh w-full border-line-strong border-l bg-surface p-0 text-ink shadow-overlay",
         "open:animate-slide-in-right",
         width,
       )}
@@ -191,7 +191,7 @@ export function Drawer({
         <div className="flex h-full flex-col">
           <div className="flex items-start justify-between gap-4 border-line border-b px-5 py-4">
             <div className="min-w-0">
-              <h2 className="font-display font-semibold text-[18px] text-navy-950 leading-snug">
+              <h2 className="font-semibold text-[16px] text-ink leading-snug tracking-[-0.01em]">
                 {title}
               </h2>
               {subtitle ? (
@@ -201,7 +201,7 @@ export function Drawer({
             <button
               type="button"
               onClick={onClose}
-              className="-mr-1 shrink-0 rounded-md p-1 text-subtle hover:bg-paper hover:text-ink"
+              className="-mr-1 shrink-0 rounded-md p-1 text-subtle hover:bg-white/[0.06] hover:text-ink"
               aria-label="Close panel"
             >
               <Icon name="close" size={18} />
@@ -211,7 +211,7 @@ export function Drawer({
             {children}
           </div>
           {footer ? (
-            <div className="flex gap-2 border-line border-t bg-paper/60 px-5 py-3">
+            <div className="flex gap-2 border-line border-t bg-black/20 px-5 py-3">
               {footer}
             </div>
           ) : null}

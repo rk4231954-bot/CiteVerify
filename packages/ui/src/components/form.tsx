@@ -9,9 +9,9 @@ import { cn } from "../lib/cn.ts";
 import { Icon, type IconName } from "./icon.tsx";
 
 const CONTROL =
-  "w-full rounded-md border border-line-strong bg-surface text-sm text-ink placeholder:text-subtle shadow-card " +
+  "w-full rounded-[7px] border border-line-strong bg-[#121214] text-[13px] text-ink placeholder:text-subtle shadow-[inset_0_1px_2px_rgb(0_0_0/0.35)] " +
   "transition-[border-color,box-shadow] duration-150 hover:border-navy-200 " +
-  "focus:border-primary-500 focus:outline-none focus:ring-3 focus:ring-primary-500/15 " +
+  "focus:border-primary-500 focus:outline-none focus:ring-3 focus:ring-primary-500/20 " +
   "disabled:cursor-not-allowed disabled:bg-paper disabled:text-subtle aria-invalid:border-danger-600";
 
 export function Input({

@@ -115,7 +115,7 @@ export function TooltipBox({
   }>;
 }) {
   return (
-    <div className="min-w-36 rounded-md border border-line bg-surface px-3 py-2 text-[12.5px] shadow-raised">
+    <div className="gloss min-w-36 rounded-[8px] border border-line-strong bg-[#1b1b1e] px-3 py-2 text-[12.5px] shadow-overlay">
       <div className="mb-1 font-medium text-ink">{title}</div>
       {rows.map((r) => (
         <div
@@ -139,13 +139,20 @@ export function TooltipBox({
   );
 }
 
+// Dark chart surface: recessive axes and grid (values match the --color-line / --color-muted tokens).
 export const AXIS = {
-  stroke: "#e6e4dd",
-  tick: { fill: "#5b6478", fontSize: 11.5 },
+  stroke: "#2a2a2f",
+  tick: {
+    fill: "#8a8a93",
+    fontSize: 11,
+    fontFamily: "Geist Mono, ui-monospace, monospace",
+  },
   tickLine: false,
-  axisLine: { stroke: "#e6e4dd" },
+  axisLine: { stroke: "#2a2a2f" },
 } as const;
 
-export const GRID_STROKE = "#eeece6";
-/** Categorical slots (validated reference order): blue, orange. */
-export const SERIES = ["#2a78d6", "#eb6834"] as const;
+export const GRID_STROKE = "#222226";
+/** Card surface colour, used for the 2px gaps between adjacent marks. */
+export const SURFACE = "#161618";
+/** Categorical slots (validated on the dark surface): blue, orange. */
+export const SERIES = ["#2a78d6", "#e0612a"] as const;

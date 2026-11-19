@@ -75,8 +75,8 @@ export const VERDICTS: Record<Verdict, VerdictMeta> = {
     short: "Misleading",
     description:
       "None of the cited sources appear to concern the claim's topic.",
-    color: "#e35a26",
-    tone: "orange",
+    color: "#c94f9e",
+    tone: "pink",
     icon: "alert",
   },
   NEEDS_HUMAN_REVIEW: {
@@ -84,7 +84,7 @@ export const VERDICTS: Record<Verdict, VerdictMeta> = {
     short: "Review",
     description:
       "The automated assessment could not reach a reliable verdict (e.g. missing citation, no evidence, or conflicting evidence).",
-    color: "#eda100",
+    color: "#b88700",
     tone: "warning",
     icon: "user",
   },

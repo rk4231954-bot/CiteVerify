@@ -62,3 +62,22 @@ export const NAV_FOOTER: NavItem[] = [
     description: "Account and system capabilities",
   },
 ];
+
+const byPath = (to: string): NavItem => {
+  const item = [...NAV_MAIN, ...NAV_FOOTER].find((n) => n.to === to);
+  if (!item) throw new Error(`Unknown nav item ${to}`);
+  return item;
+};
+
+/** Grouping used by the right-hand navigation rail. */
+export const NAV_SECTIONS: Array<{ title: string; items: NavItem[] }> = [
+  {
+    title: "Workspace",
+    items: ["/", "/documents", "/upload"].map(byPath),
+  },
+  {
+    title: "Analysis",
+    items: ["/claims", "/verification", "/discovery", "/reports"].map(byPath),
+  },
+  { title: "Account", items: ["/settings"].map(byPath) },
+];

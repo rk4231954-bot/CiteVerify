@@ -2,6 +2,10 @@ import type { SVGProps } from "react";
 
 /** Stroke icons (24×24 grid, 1.75 stroke) — drawn for CiteVerify, no icon dependency. */
 const PATHS = {
+  more: "M5 12h.01M12 12h.01M19 12h.01",
+  grip: "M9 6h.01M15 6h.01M9 12h.01M15 12h.01M9 18h.01M15 18h.01",
+  chevronsUpDown: "M7 15l5 5 5-5M7 9l5-5 5 5",
+  panelRight: "M4 4h16v16H4zM15 4v16",
   overview: "M3 13h8V3H3zM13 21h8V11h-8zM3 21h8v-6H3zM13 3v6h8V3z",
   documents:
     "M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8zM14 3v5h5M9 13h6M9 17h4",
@@ -102,11 +106,27 @@ export function LogoMark({ size = 28 }: { size?: number }) {
       aria-hidden="true"
       focusable="false"
     >
-      <rect width="32" height="32" rx="7" fill="#0b1736" />
+      <defs>
+        <linearGradient id="cv-logo-bg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#2e2e34" />
+          <stop offset="1" stopColor="#151518" />
+        </linearGradient>
+      </defs>
+      <rect width="32" height="32" rx="8" fill="url(#cv-logo-bg)" />
+      <rect
+        x="0.5"
+        y="0.5"
+        width="31"
+        height="31"
+        rx="7.5"
+        fill="none"
+        stroke="#ffffff"
+        strokeOpacity="0.12"
+      />
       <path
         d="M11 8H8.5v16H11M21 8h2.5v16H21"
         fill="none"
-        stroke="#5b86ff"
+        stroke="#8aa9ff"
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"

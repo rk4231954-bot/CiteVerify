@@ -7,6 +7,7 @@ import {
   EmptyState,
   Icon,
   type IconName,
+  IconTile,
   Skeleton,
 } from "@citeverify/ui";
 import type { ReactNode } from "react";
@@ -28,19 +29,19 @@ export function PageHeader({
   children?: ReactNode;
 }) {
   return (
-    <header className="mb-6">
+    <header className="mb-7">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="min-w-0">
           {eyebrow ? (
-            <div className="mb-1.5 font-medium text-[11.5px] text-primary-600 uppercase tracking-[0.1em]">
+            <div className="mb-1.5 font-medium text-[11.5px] text-subtle uppercase tracking-[0.1em]">
               {eyebrow}
             </div>
           ) : null}
-          <h1 className="font-display font-semibold text-[28px] text-navy-950 leading-tight tracking-[-0.01em] md:text-[32px]">
+          <h1 className="font-semibold text-[22px] text-ink leading-tight tracking-[-0.02em] md:text-[24px]">
             {title}
           </h1>
           {description ? (
-            <p className="mt-1.5 max-w-2xl text-[14px] text-muted leading-relaxed">
+            <p className="mt-1.5 max-w-2xl text-[13px] text-muted leading-relaxed">
               {description}
             </p>
           ) : null}
@@ -69,36 +70,33 @@ export function StatTile({
   accent?: "primary" | "violet" | "success" | "warning" | "navy";
   loading?: boolean;
 }) {
-  const ring = {
-    primary: "bg-primary-50 text-primary-600",
-    violet: "bg-accent-50 text-accent-600",
-    success: "bg-success-50 text-success-700",
-    warning: "bg-warning-50 text-warning-700",
-    navy: "bg-navy-50 text-navy-700",
-  }[accent];
+  const tone = (
+    {
+      primary: "primary",
+      violet: "violet",
+      success: "success",
+      warning: "warning",
+      navy: "neutral",
+    } as const
+  )[accent];
   return (
-    <Card className="group relative overflow-hidden p-4 transition-shadow duration-200 hover:shadow-raised">
+    <Card interactive className="relative overflow-hidden p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="text-[12.5px] text-muted">{label}</div>
           {loading ? (
             <Skeleton className="mt-2 h-7 w-16" />
           ) : (
-            <div className="mt-1 font-semibold text-[28px] text-navy-950 leading-tight">
+            <div className="tabular mt-1.5 font-semibold text-[26px] text-ink leading-none tracking-[-0.02em]">
               {value}
             </div>
           )}
         </div>
-        <div
-          className={cn(
-            "flex h-9 w-9 shrink-0 items-center justify-center rounded-md",
-            ring,
-          )}
-        >
-          <Icon name={icon} size={18} />
-        </div>
+        <IconTile icon={icon} tone={tone} size="sm" />
       </div>
-      {hint ? <div className="mt-2 text-[12px] text-subtle">{hint}</div> : null}
+      {hint ? (
+        <div className="mt-2.5 truncate text-[12px] text-subtle">{hint}</div>
+      ) : null}
     </Card>
   );
 }
@@ -138,19 +136,19 @@ export function ConfidenceMeter({
   const v = Math.max(0, Math.min(100, Math.round(value)));
   const fill =
     v >= 75
-      ? "bg-navy-700"
+      ? "bg-ink-soft"
       : v >= 50
-        ? "bg-primary-500"
+        ? "bg-[#8aa9ff]"
         : v >= 25
-          ? "bg-primary-300"
-          : "bg-primary-200";
+          ? "bg-[#5b86ff]"
+          : "bg-[#3a5596]";
   return (
     <span
       className="inline-flex items-center gap-2"
       title={`${confidenceLabel(v)} in the automated assessment (${v}/100). Not a guarantee of correctness.`}
     >
       <span
-        className="relative h-1.5 w-14 overflow-hidden rounded-full bg-primary-50"
+        className="relative h-1.5 w-14 overflow-hidden rounded-full bg-white/[0.09]"
         aria-hidden="true"
       >
         <span
@@ -326,10 +324,10 @@ export function FilterChip({
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "inline-flex h-8 items-center gap-1.5 rounded-md border px-2.5 text-[12.5px] transition-colors",
+        "inline-flex h-7 items-center gap-1.5 rounded-[7px] border px-2.5 text-[12.5px] transition-colors",
         active
-          ? "border-navy-900 bg-navy-900 text-white"
-          : "border-line-strong bg-surface text-ink-soft hover:border-navy-200",
+          ? "border-white/[0.2] bg-[linear-gradient(180deg,#34343a,#28282d)] text-ink shadow-card"
+          : "border-line bg-white/[0.03] text-muted hover:border-line-strong hover:text-ink",
       )}
     >
       {color ? (
