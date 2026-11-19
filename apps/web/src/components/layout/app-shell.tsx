@@ -76,6 +76,15 @@ export function AppShell() {
 
       {/* Top bar (sits on the frame, outside the window) */}
       <header className="no-print flex h-12 shrink-0 items-center gap-2 px-3 md:px-4">
+        <button
+          type="button"
+          className="flex h-7 w-7 items-center justify-center rounded-[7px] text-ink-soft hover:bg-white/[0.06] hover:text-ink lg:hidden"
+          onClick={() => setMobileOpen(true)}
+          aria-label="Open navigation"
+          aria-expanded={mobileOpen}
+        >
+          <Icon name="menu" size={18} />
+        </button>
         <Link
           to="/"
           className="flex items-center rounded-[7px] p-0.5 hover:bg-white/[0.05]"
@@ -108,15 +117,6 @@ export function AppShell() {
             </span>
           </button>
           <UserMenu />
-          <button
-            type="button"
-            className="flex h-7 w-7 items-center justify-center rounded-[7px] text-ink-soft hover:bg-white/[0.06] hover:text-ink lg:hidden"
-            onClick={() => setMobileOpen(true)}
-            aria-label="Open navigation"
-            aria-expanded={mobileOpen}
-          >
-            <Icon name="menu" size={18} />
-          </button>
         </div>
       </header>
 
@@ -130,6 +130,18 @@ export function AppShell() {
         </div>
 
         <div className="flex min-h-0 flex-1">
+          {/* Left navigation rail (desktop) */}
+          <aside
+            className={cn(
+              "no-print hidden shrink-0 border-line border-r transition-[width] duration-200 ease-out lg:block",
+              collapsed ? "w-[68px]" : "w-[292px]",
+            )}
+          >
+            <div className="sticky top-0 h-[calc(100dvh-3.25rem)]">
+              <Sidebar collapsed={collapsed} onToggle={toggle} />
+            </div>
+          </aside>
+
           <main id="main" className="min-w-0 flex-1">
             <div className="mx-auto w-full max-w-[1240px] px-4 py-6 md:px-8 md:py-10">
               <div key={location.pathname} className="animate-fade-up">
@@ -146,22 +158,10 @@ export function AppShell() {
               </div>
             </div>
           </main>
-
-          {/* Right navigation rail (desktop) */}
-          <aside
-            className={cn(
-              "no-print hidden shrink-0 border-line border-l transition-[width] duration-200 ease-out lg:block",
-              collapsed ? "w-[68px]" : "w-[292px]",
-            )}
-          >
-            <div className="sticky top-0 h-[calc(100dvh-3.25rem)]">
-              <Sidebar collapsed={collapsed} onToggle={toggle} />
-            </div>
-          </aside>
         </div>
       </div>
 
-      {/* Mobile navigation drawer (from the right) */}
+      {/* Mobile navigation drawer (from the left) */}
       {mobileOpen ? (
         <div className="fixed inset-0 z-50 lg:hidden">
           <button
@@ -170,7 +170,7 @@ export function AppShell() {
             className="absolute inset-0 animate-fade-in bg-black/60 backdrop-blur-[2px]"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="app-window absolute inset-y-0 right-0 w-[300px] max-w-[85vw] animate-slide-in-right border-line-strong border-l shadow-overlay">
+          <div className="app-window absolute inset-y-0 left-0 w-[300px] max-w-[85vw] animate-slide-in-left border-line-strong border-r shadow-overlay">
             <Sidebar
               collapsed={false}
               onClose={() => setMobileOpen(false)}

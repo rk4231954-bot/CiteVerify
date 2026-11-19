@@ -81,7 +81,7 @@ function RailItem({
 }
 
 /**
- * Right-hand navigation rail. Expanded it shows each destination as a card
+ * Left-hand navigation rail. Expanded it shows each destination as a card
  * (icon tile, title, description); collapsed it shrinks to an icon column.
  */
 export function Sidebar({
@@ -130,7 +130,7 @@ export function Sidebar({
           >
             <Icon
               name={
-                onClose ? "close" : collapsed ? "chevronLeft" : "chevronRight"
+                onClose ? "close" : collapsed ? "chevronRight" : "chevronLeft"
               }
               size={15}
             />
