@@ -67,8 +67,9 @@ export function ReviewRecommendation({
   return (
     <Callout tone="warning" title="Human review recommended">
       <ul className="list-disc space-y-0.5 pl-4">
-        {result.humanReview.reasons.map((r) => (
-          <li key={r}>{r}</li>
+        {result.humanReview.reasons.map((r, i) => (
+          // biome-ignore lint/suspicious/noArrayIndexKey: reasons can repeat, so position disambiguates.
+          <li key={`${i}:${r}`}>{r}</li>
         ))}
       </ul>
     </Callout>
@@ -229,9 +230,10 @@ export function ResultDetail({
       <section>
         <SectionLabel>Limitations</SectionLabel>
         <ul className="space-y-1.5">
-          {result.limitations.map((l) => (
+          {result.limitations.map((l, i) => (
             <li
-              key={l}
+              // biome-ignore lint/suspicious/noArrayIndexKey: limitations can repeat, so position disambiguates.
+              key={`${i}:${l}`}
               className="flex gap-2 text-[13px] text-ink-soft leading-relaxed"
             >
               <Icon

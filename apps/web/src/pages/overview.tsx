@@ -110,7 +110,7 @@ export function OverviewPage() {
             title={
               stats ? (
                 <>
-                  {verifiedShare}% verified
+                  {verifiedShare}% verified{" "}
                   <span className="ml-2 hidden font-normal text-[15px] text-muted sm:inline">
                     {greeting()}
                     {firstName ? `, ${firstName}` : ""}

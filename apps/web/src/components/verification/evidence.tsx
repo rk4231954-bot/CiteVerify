@@ -116,8 +116,12 @@ export function ResultPassage({
         </figcaption>
         {evidence.rationale.length ? (
           <ul className="mt-2 space-y-0.5 border-line border-t pt-2 text-[12px] text-ink-soft">
-            {evidence.rationale.map((r) => (
-              <li key={r} className="flex gap-1.5">
+            {evidence.rationale.map((r, i) => (
+              <li
+                // biome-ignore lint/suspicious/noArrayIndexKey: rationale lines can repeat, so position disambiguates.
+                key={`${i}:${r}`}
+                className="flex gap-1.5"
+              >
                 <Icon
                   name="chevronRight"
                   size={12}

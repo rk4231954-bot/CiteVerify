@@ -311,9 +311,9 @@ export function HeroStat({
   return (
     <div className={cn("flex items-start justify-between gap-4", className)}>
       <div className="min-w-0">
-        <div className="font-semibold text-[22px] text-ink leading-tight tracking-[-0.02em]">
+        <h1 className="font-semibold text-[22px] text-ink leading-tight tracking-[-0.02em]">
           {title}
-        </div>
+        </h1>
         {subtitle ? (
           <div className="mt-1 text-[12.5px] text-muted">{subtitle}</div>
         ) : null}

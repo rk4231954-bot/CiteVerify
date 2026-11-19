@@ -421,8 +421,9 @@ function ClaimDrawer({
             <div>
               <SectionLabel>Why this was identified as a claim</SectionLabel>
               <ul className="list-disc space-y-1 pl-5 text-[13px] text-ink-soft">
-                {claim.rationale.map((r) => (
-                  <li key={r}>{r}</li>
+                {claim.rationale.map((r, i) => (
+                  // biome-ignore lint/suspicious/noArrayIndexKey: rationale lines can repeat, so position disambiguates.
+                  <li key={`${i}:${r}`}>{r}</li>
                 ))}
               </ul>
             </div>

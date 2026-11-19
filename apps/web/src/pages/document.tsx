@@ -576,9 +576,10 @@ function ClaimsTab({ id }: { id: string }) {
                   <p className="text-[13px] text-muted">No citation linked.</p>
                 ) : (
                   <div className="flex flex-wrap gap-1.5">
-                    {cites.map((x) => (
+                    {cites.map((x, i) => (
                       <Badge
-                        key={x.text}
+                        // biome-ignore lint/suspicious/noArrayIndexKey: one marker such as "[3, 4]" yields an entry per reference.
+                        key={`${i}:${x.text}`}
                         tone={MATCH_TONE[x.match] ?? "neutral"}
                       >
                         <span className="font-mono">{x.text}</span>
